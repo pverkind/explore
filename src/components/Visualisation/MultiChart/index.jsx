@@ -24,7 +24,7 @@ const MultiVisual = (props) => {
     setXScale,
     setYScale,
     colorScale,
-    selfReuseOnly
+    selfReuseOnly,
     //setChartData,
     /*Books,
     setBooks,
@@ -46,7 +46,7 @@ const MultiVisual = (props) => {
   const book1 = metaData.book1;
   const mainBookURI = book1.bookTitle.path;
   const mainAuthor = mainBookURI.split(".")[0];
-  const mainAuthorDate = parseInt(mainAuthor.slice(0,4));
+  const mainAuthorDate = parseInt(mainAuthor.slice(0, 4));
 
   const downloadFileName = `${book1?.versionCode}_all.png`;
 
@@ -88,12 +88,14 @@ const MultiVisual = (props) => {
 
   // FILTER DATA:
   let dataDateRange = dateRange;
-  if (selfReuseOnly){
+  if (selfReuseOnly) {
     // only keep the items whose author is the same as the author of the main book:
-    msData = msData.filter((d) => bookUriDict[d.id2][0].split(".")[0] === mainAuthor);
+    msData = msData.filter(
+      (d) => bookUriDict[d.id2][0].split(".")[0] === mainAuthor
+    );
     bookStats = bookStats.filter((d) => d.book.split(".")[0] === mainAuthor);
-    dataDateRange = [mainAuthorDate, mainAuthorDate+1];
-  } 
+    dataDateRange = [mainAuthorDate, mainAuthorDate + 1];
+  }
   /*console.log("AFTER SELFREUSE FILTER:");
   console.log(msData);
   console.log(bookStats);
@@ -117,19 +119,23 @@ const MultiVisual = (props) => {
     return (
       d.date >= minDate &&
       d.date <= maxDate &&
-      ( (selfReuseOnly && d.book === mainBookURI) ? 1 : d.ch_match >= minBookChars) &&
-      ( (selfReuseOnly && d.book === mainBookURI) ? 1 : d.ch_match <= maxBookChars) &&
+      (selfReuseOnly && d.book === mainBookURI
+        ? 1
+        : d.ch_match >= minBookChars) &&
+      (selfReuseOnly && d.book === mainBookURI
+        ? 1
+        : d.ch_match <= maxBookChars) &&
       d.alignments >= minAlignments &&
       d.alignments <= maxAlignments
     );
   });
-  
+
   // recalculate the index numbers (X values):
   let bookIndexDict = {}; // keys: versionID, values: bookIndex
   bookUriDict = {}; // keys: versionID, values: textURI
   for (let i = 0; i < bookStats.length; i++) {
     bookStats[i]["bookIndex"] = i + 1;
-    bookIndexDict[bookStats[i]["id"]] = i+1;
+    bookIndexDict[bookStats[i]["id"]] = i + 1;
     bookUriDict[bookStats[i]["id"]] = [bookStats[i]["book"]];
   }
   for (let i = 0; i < msData.length; i++) {
@@ -137,8 +143,8 @@ const MultiVisual = (props) => {
       msData[i]["bookIndex"] = bookIndexDict[msData[i]["id2"]];
     } catch (error) {}
   }
-  
-  // recalculate msStats: 
+
+  // recalculate msStats:
   msStats = {};
   //msBooks = {};
   for (let i = 0; i < msData.length; i++) {
@@ -160,9 +166,6 @@ const MultiVisual = (props) => {
   console.log(msData);
   console.log(bookStats);
   console.log(msStats);*/
-
-
-
 
   const restoreCanvas = () => {
     // reload without filter search params
@@ -190,7 +193,7 @@ const MultiVisual = (props) => {
   const [toggle, setToggle] = useState(false);
 
   return (
-    <>
+    <Box sx={{ mt: "40px" }}>
       <SectionHeaderLayout
         item={{
           title: "One-to-Many Visualization",
@@ -281,7 +284,7 @@ const MultiVisual = (props) => {
         msCharsRange={msCharsRange}
         setMsCharsRange={setMsCharsRange}
       />
-    </>
+    </Box>
   );
 };
 

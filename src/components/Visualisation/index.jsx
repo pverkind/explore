@@ -4,7 +4,6 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import Header from "./Header";
 import UploadInput from "./UploadInput";
-// import BookMetadata from "./Metadata";
 import Visual from "./Chart";
 import MultiVisual from "./MultiChart";
 import { getVersionMeta } from "../../functions/getVersionMeta";
@@ -114,6 +113,9 @@ const VisualisationPage = () => {
     }, 1000);
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [isNoBook, setIsNoBook] = useState(true);
+
   const loadChartFromUrl = async () => {
     setInitialValues({
       dataLoading,
@@ -129,6 +131,11 @@ const VisualisationPage = () => {
 
     const booksParam = searchParams.get("books");
     const book_names = booksParam.split("_");
+    if (book_names.length === 0) {
+      setIsNoBook(true);
+    } else {
+      setIsNoBook(false);
+    }
 
     // download the version metadata of all books in the URL booksParam:
     const versionMeta = await getVersionMeta(releaseCode, book_names);
@@ -136,6 +143,7 @@ const VisualisationPage = () => {
     if (book_names.length === 1 || book_names[1] === "all") {
       // ONE TO ALL VISUALISATION
       setIsPairwiseViz(false);
+      setIsLoading(false);
 
       // get the metadata for book1:
       const book1 = versionMeta.book1;
@@ -200,9 +208,11 @@ const VisualisationPage = () => {
         csvFileName,
         setUrl,
       });
+      setIsLoading(false);
     } else {
       setDataLoading({ ...dataLoading, uploading: false });
       setIsError(true);
+      setIsLoading(false);
     }
   };
 
@@ -214,7 +224,6 @@ const VisualisationPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [releaseCode]);
-
   return (
     <Box
       mx={"auto"}
@@ -271,21 +280,16 @@ const VisualisationPage = () => {
               <LoaderIcon />
             </>
           )}
-          {isPairwiseViz ? (
+          {isPairwiseViz || isNoBook ? (
             <UploadInput
               item={{ title: "Upload TSV File" }}
               handleUpload={handleUpload}
             />
           ) : null}
+          {isLoading && !isNoBook && <CircularInterminate />}
           {isFileUploaded ? (
             <>
-              {/* {!dataLoading?.metadata ? (
-                <BookMetadata />
-              ) : (
-                <CircularInterminate />
-              )} */}
-              {!dataLoading?.chart &&
-              (chartData?.dataSets?.length || chartData?.msData?.length) ? (
+              {chartData?.dataSets?.length || chartData?.msData?.length ? (
                 isPairwiseViz ? (
                   <Visual isPairwiseViz={isPairwiseViz} />
                 ) : (
@@ -300,9 +304,10 @@ const VisualisationPage = () => {
               ) : (
                 books && <CircularInterminate />
               )}
+
               <div id={"belowBooks"} />
             </>
-          ) : (
+          ) : isNoBook ? null : (
             <CircularInterminate />
           )}
         </Box>
