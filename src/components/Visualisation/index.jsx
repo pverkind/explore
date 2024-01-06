@@ -131,6 +131,7 @@ const VisualisationPage = () => {
 
     const booksParam = searchParams.get("books");
     const book_names = booksParam.split("_");
+
     if (book_names.length === 0) {
       setIsNoBook(true);
     } else {
@@ -141,74 +142,90 @@ const VisualisationPage = () => {
     const versionMeta = await getVersionMeta(releaseCode, book_names);
 
     if (book_names.length === 1 || book_names[1] === "all") {
-      // ONE TO ALL VISUALISATION
-      setIsPairwiseViz(false);
-      setIsLoading(false);
+      try {
+        // ONE TO ALL VISUALISATION
+        setIsPairwiseViz(false);
+        setIsLoading(false);
 
-      // get the metadata for book1:
-      const book1 = versionMeta.book1;
+        // get the metadata for book1:
+        const book1 = versionMeta.book1;
 
-      setMainVersionCode(book1.version_code);
+        setMainVersionCode(book1.version_code);
 
-      // download msdata (from GitHub):
-      const msdataFile = await getOneBookMsData(releaseCode, book_names[0]);
-      // download stats (from GitHub):
-      const statsFile = await getOneBookReuseStats(releaseCode, book_names[0]);
+        // download msdata (from GitHub):
+        const msdataFile = await getOneBookMsData(releaseCode, book_names[0]);
+        // download stats (from GitHub):
+        const statsFile = await getOneBookReuseStats(
+          releaseCode,
+          book_names[0]
+        );
 
-      // set visualisation data
-      setMultiVizData({
-        book1,
-        msdataFile,
-        statsFile,
-        dataLoading,
-        setDataLoading,
-        setMetaData,
-        releaseCode,
-        getMetadataObject,
-        setChartData,
-        setIsError,
-        setIsFileUploaded,
-        setUrl,
-      });
-    } else if (book_names.length === 2) {
-      // PAIRWISE VISUALISATION
-      setIsPairwiseViz(true);
-      const book1 = versionMeta.book1;
-      const book2 = versionMeta.book2;
-      // first, try to download the text reuse data from the KITAB web server:
-      const csvFileName = buildCsvFilename(book1, book2);
-      let passimFolder = lightSrtFolders[releaseCode];
-      let url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
-
-      // download the pairwise passim data if it was not downloaded/uploaded yet:
-      let CSVFile = loadedCsvFile || (await downloadCsvData(url));
-
-      // if this fails: try to download it from GitHub:
-      if (CSVFile instanceof Error) {
-        passimFolder = srtFoldersGitHub[releaseCode];
-        url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
-        CSVFile = await downloadCsvData(url);
+        // set visualisation data
+        setMultiVizData({
+          book1,
+          msdataFile,
+          statsFile,
+          dataLoading,
+          setDataLoading,
+          setMetaData,
+          releaseCode,
+          getMetadataObject,
+          setChartData,
+          setIsError,
+          setIsFileUploaded,
+          setUrl,
+        });
+      } catch (err) {
+        setDataLoading({ ...dataLoading, uploading: false });
+        setIsError(true);
+        setIsLoading(false);
       }
-      // remove the loadedCsvFile blob from memory (context):
-      setLoadedCsvFile(null);
+    } else if (book_names.length === 2) {
+      try {
+        // PAIRWISE VISUALISATION
+        setIsPairwiseViz(true);
+        const book1 = versionMeta.book1;
+        const book2 = versionMeta.book2;
+        // first, try to download the text reuse data from the KITAB web server:
+        const csvFileName = buildCsvFilename(book1, book2);
+        let passimFolder = lightSrtFolders[releaseCode];
+        let url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
 
-      setPairwiseVizData({
-        book1,
-        book2,
-        CSVFile,
-        dataLoading,
-        setDataLoading,
-        setMetaData,
-        releaseCode,
-        getMetadataObject,
-        setChartData,
-        setIsError,
-        setIsFileUploaded,
-        navigate,
-        csvFileName,
-        setUrl,
-      });
-      setIsLoading(false);
+        // download the pairwise passim data if it was not downloaded/uploaded yet:
+        let CSVFile = loadedCsvFile || (await downloadCsvData(url));
+
+        // if this fails: try to download it from GitHub:
+        if (CSVFile instanceof Error) {
+          passimFolder = srtFoldersGitHub[releaseCode];
+          url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
+          CSVFile = await downloadCsvData(url);
+        }
+        // remove the loadedCsvFile blob from memory (context):
+        setLoadedCsvFile(null);
+
+        setPairwiseVizData({
+          book1,
+          book2,
+          CSVFile,
+          dataLoading,
+          setDataLoading,
+          setMetaData,
+          releaseCode,
+          getMetadataObject,
+          setChartData,
+          setIsError,
+          setIsFileUploaded,
+          navigate,
+          csvFileName,
+          setUrl,
+        });
+
+        setIsLoading(false);
+      } catch (err) {
+        setDataLoading({ ...dataLoading, uploading: false });
+        setIsError(true);
+        setIsLoading(false);
+      }
     } else {
       setDataLoading({ ...dataLoading, uploading: false });
       setIsError(true);

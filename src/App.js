@@ -2,7 +2,6 @@ import "./App.css";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { green, red } from "@mui/material/colors";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
 import Insight from "./pages/Insight";
 import Visualisation from "./pages/Visualisation";
 import CorpusMetadata from "./pages/CorpusMetadata";
@@ -391,7 +390,7 @@ function App() {
         <div className="App">
           <Router basename="/">
             <Routes>
-              <Route path="" element={<HomePage />} />
+              <Route path="" element={<CorpusMetadata />} />
               <Route path="/metadata/" element={<CorpusMetadata />} />
               <Route path="/metadata/:version" element={<CorpusMetadata />} />
               <Route path="/insight" element={<Insight />} />
