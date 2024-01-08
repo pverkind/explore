@@ -7,8 +7,6 @@ import CustomTextInput from "./CustomTextInput";
 import { Button, Drawer } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import MultiSlider from "./MultiSlider";
-import SingleSlider from "./SingleSlider";
-import { Grid } from "@mui/material";
 
 const style = {
   p: {
@@ -28,8 +26,6 @@ export default function AdvanceSearch() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [tempAdvanceSearch, setTempAdvanceSearch] = React.useState({
-    // max_char_count: "",
-    // min_char_count: "",
     max_tok_count: "",
     min_tok_count: "",
     editor: "",
@@ -57,41 +53,9 @@ export default function AdvanceSearch() {
     });
   };
 
-  const handleSingleChangeCommitted_Before = (e, newVal) => {
-    setTempAdvanceSearch({
-      ...tempAdvanceSearch,
-      died_before_AH: newVal,
-    });
-  };
-
-  const handleSingleChangeCommitted_After = (e, newVal) => {
-    setTempAdvanceSearch({
-      ...tempAdvanceSearch,
-      died_after_AH: newVal,
-    });
-  };
-
   const handleSubmitAdvanceSearch = () => {
     setAdvanceSearch(tempAdvanceSearch);
     const params = Object.fromEntries([...searchParams]);
-    // if (tempAdvanceSearch?.max_char_count !== "") {
-    //   setSearchParams({
-    //     ...params,
-    //     max_char_count: tempAdvanceSearch.max_char_count,
-    //   });
-    // } else {
-    //   searchParams.delete("max_char_count");
-    //   setSearchParams(searchParams);
-    // }
-    // if (tempAdvanceSearch?.min_char_count !== "") {
-    //   setSearchParams({
-    //     ...params,
-    //     min_char_count: tempAdvanceSearch.min_char_count,
-    //   });
-    // } else {
-    //   searchParams.delete("min_char_count");
-    //   setSearchParams(searchParams);
-    // }
     const allSearchParams = {
       ...(params || {}),
       max_tok_count: tempAdvanceSearch?.max_tok_count,
@@ -120,12 +84,6 @@ export default function AdvanceSearch() {
 
   React.useEffect(() => {
     setAdvanceSearch({
-      // max_char_count: searchParams.get("max_char_count")
-      //   ? searchParams.get("max_char_count")
-      //   : "",
-      // min_char_count: searchParams.get("min_char_count")
-      //   ? searchParams.get("min_char_count")
-      //   : "",
       max_tok_count: searchParams.get("max_tok_count")
         ? searchParams.get("max_tok_count")
         : "",
@@ -179,25 +137,18 @@ export default function AdvanceSearch() {
             handler={handleChangeCommitted}
             label={"Token Count:"}
           />
-
-          <Grid container spacing="30px" sx={{ mt: "0px" }}>
-            <Grid item xs={12} md={6}>
-              <SingleSlider
-                max={1800}
-                value={advanceSearch?.died_before_AH}
-                handler={handleSingleChangeCommitted_Before}
-                label={"Author Died Before: "}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <SingleSlider
-                max={1800}
-                value={advanceSearch?.died_after_AH}
-                handler={handleSingleChangeCommitted_After}
-                label={"Author Died After: "}
-              />
-            </Grid>
-          </Grid>
+          <CustomTextInput
+            label={"Author Died Before: "}
+            value={tempAdvanceSearch.died_before_AH}
+            handler={handleChangeAdvanceSearch}
+            name={"died_before_AH"}
+          />
+          <CustomTextInput
+            label={"Author Died After: "}
+            value={tempAdvanceSearch.died_after_AH}
+            handler={handleChangeAdvanceSearch}
+            name={"died_after_AH"}
+          />
           <CustomTextInput
             label={"Editor of the paper version:"}
             value={tempAdvanceSearch.editor}
@@ -222,41 +173,6 @@ export default function AdvanceSearch() {
             handler={handleChangeAdvanceSearch}
             name={"edition_date"}
           />
-          {/* <CustomTextInput label={"Version tags contain:"} />
-            <CustomTextInput label={"Version text titles ar contains:"} />
-            <CustomTextInput
-              label={"Version text author author ar contains:"}
-            />
-            <CustomTextInput
-              label={"Version text author author lat contains:"}
-            />
-            <CustomTextInput
-              label={"Version text author date AH is greater than:"}
-            />
-            <CustomTextInput
-              label={"Version text author date AH is less than:"}
-            />
-            <CustomTextInput
-              label={"Version text author date AH is in range:"}
-            />
-            <CustomTextInput
-              label={"Version text author name elements shuhra contains:"}
-            />
-            <CustomTextInput
-              label={"Version text author name elements ism contains:"}
-            />
-            <CustomTextInput
-              label={"Version text author name elements nasab contains:"}
-            />
-            <CustomTextInput
-              label={"Version text author name elements kunya contains:"}
-            />
-            <CustomTextInput
-              label={"Version text author name elements laqab contains:"}
-            />
-            <CustomTextInput
-              label={"Version text author name elements nisba contains:"}
-            /> */}
           <Box mt="10px" display="flex" justifyContent="flex-end">
             <Button
               variant="contained"
