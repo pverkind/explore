@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 //import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Context } from "../../../../App";
 import { oneToAllFolders } from "../../../../assets/srtFolders";
-import { REPO_NAME } from "../../../Common/NavigationBar";
 
 const ReuseCell = ({ classes, row }) => {
   const { toggleSidePanel, releaseCode } = useContext(Context);
@@ -69,7 +68,7 @@ const ReuseCell = ({ classes, row }) => {
             }}
           >
             <Link
-              href={`/${REPO_NAME}/#/visualise/${
+              href={`/#/visualise/${
                 row?.release_version?.release_code
               }/?books=${row?.release_version?.url
                 .split("/")

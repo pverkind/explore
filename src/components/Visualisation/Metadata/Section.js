@@ -2,6 +2,7 @@ import { Box, Link, Tooltip, Typography } from "@mui/material";
 import React from "react";
 import { useContext } from "react";
 import { Context } from "../../../App";
+import { REPO_NAME } from "../../Common/NavigationBar";
 
 const Section = ({ data }) => {
   const { releaseCode, toggleSidePanel } = useContext(Context);
@@ -41,7 +42,13 @@ const Section = ({ data }) => {
             <Tooltip title="Open in metadata app">
               <Link
                 sx={{ textDecoration: "none" }}
-                href={data ? `/metadata?search=${data?.versionCode}` : "/"}
+                href={
+                  data
+                    ? `${!REPO_NAME ? "" : `/${REPO_NAME}`}/metadata?search=${
+                        data?.versionCode
+                      }`
+                    : "/"
+                }
                 target="_blank"
               >
                 <i
@@ -86,7 +93,13 @@ const Section = ({ data }) => {
             <Tooltip title="Open in metadata app">
               <Link
                 sx={{ textDecoration: "none" }}
-                href={data ? `/metadata?search=${data?.bookTitle?.path}` : "/"}
+                href={
+                  data
+                    ? `${!REPO_NAME ? "" : `/${REPO_NAME}`}/metadata?search=${
+                        data?.bookTitle?.path
+                      }`
+                    : "/"
+                }
                 target="_blank"
               >
                 {" "}
@@ -133,7 +146,9 @@ const Section = ({ data }) => {
                 sx={{ textDecoration: "none" }}
                 href={
                   data
-                    ? `/metadata?search=${data?.bookTitle?.path.split(".")[0]}`
+                    ? `${!REPO_NAME ? "" : `/${REPO_NAME}`}/metadata?search=${
+                        data?.bookTitle?.path.split(".")[0]
+                      }`
                     : "/"
                 }
                 target="_blank"

@@ -9,8 +9,6 @@ import { createContext, useRef, useState } from "react";
 import DiffViewer from "./pages/DiffViewer";
 import LeftSidePanel from "./components/CorpusMetadata/Drawer";
 import * as saveSvgAsPng from "save-svg-as-png";
-import { config } from "./config";
-const { THIS_BASE_URL } = config;
 
 const theme = createTheme({
   palette: {
@@ -241,13 +239,13 @@ function App() {
     );
     textElement.setAttribute(
       "x",
-      svg.clientWidth - (THIS_BASE_URL + url).length * 7.5
+      svg.clientWidth - (window.location.origin + url).length * 7.5
     ); // X-coordinate
     textElement.setAttribute("y", 20); // Y-coordinate
     textElement.setAttribute("font-size", "14px"); // Font size
     textElement.setAttribute("fill", "black"); // Fill color
     // Create a text node with the text content
-    var textNode = document.createTextNode(THIS_BASE_URL + url);
+    var textNode = document.createTextNode(window.location.origin + url);
     // Append the text node to the <text> element
     textElement.appendChild(textNode);
     // Append the <text> element to the SVG
