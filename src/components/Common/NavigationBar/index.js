@@ -21,7 +21,7 @@ const pages = [
   },
   {
     label: "Corpus and Data",
-    link: `/#/insight`,
+    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/insight`,
   },
   {
     label: "Methods",
@@ -37,11 +37,11 @@ const pages = [
   },
   {
     label: "OpenITI Corpus Metadata",
-    link: `/#/metadata`,
+    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/metadata`,
   },
   {
     label: "Visualisation",
-    link: `/#/visualise`,
+    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/visualise`,
   },
 ];
 
