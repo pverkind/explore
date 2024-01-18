@@ -102,7 +102,7 @@ const Navigationbar = () => {
             }}
           >
             <Link
-              href="/"
+              href={`${!REPO_NAME ? "" : `/${REPO_NAME}/`}`}
               sx={{
                 width: "100px",
                 display: "flex",
