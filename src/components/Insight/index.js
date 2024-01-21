@@ -31,8 +31,8 @@ export default function InsightComponent() {
       data: insightData?.number_of_authors
         ? insightData?.number_of_authors
         : "",
-      color1: "rgb(234, 179, 8)",
-      color2: "rgb(234, 179, 8, .3)",
+      color1: "rgb(255, 0, 230)",
+      color2: "rgb(255, 0, 230, .3)",
       icon: "fa-solid fa-users",
     },
     {
@@ -40,8 +40,8 @@ export default function InsightComponent() {
       data: insightData?.number_of_versions
         ? insightData?.number_of_versions
         : "",
-      color1: "rgb(234, 179, 8)",
-      color2: "rgb(234, 179, 8, .3)",
+      color1: "rgb(26, 0, 255)",
+      color2: "rgb(26, 0, 255, .3)",
       icon: "fa-solid fa-code-branch",
     },
     {
@@ -49,8 +49,8 @@ export default function InsightComponent() {
       data: insightData?.number_of_pri_versions
         ? insightData?.number_of_pri_versions
         : "",
-      color1: "rgb(234, 179, 8)",
-      color2: "rgb(234, 179, 8, .3)",
+      color1: "rgb(137, 0, 255)",
+      color2: "rgb(137, 0, 255, .3)",
       icon: "fa-solid fa-code-pull-request",
     },
     {
@@ -58,22 +58,22 @@ export default function InsightComponent() {
       data: insightData?.number_of_sec_versions
         ? insightData?.number_of_sec_versions
         : "",
-      color1: "rgb(234, 179, 8)",
-      color2: "rgb(234, 179, 8, .3)",
+      color1: "rgb(0, 255, 9)",
+      color2: "rgb(0, 255, 9, .3)",
       icon: "fa-solid fa-code-merge",
     },
     {
       title: "Total Word Count",
       data: insightData?.total_word_count ? insightData?.total_word_count : "",
-      color1: "rgb(234, 179, 8)",
-      color2: "rgb(234, 179, 8, .3)",
+      color1: "rgb(255, 0, 0)",
+      color2: "rgb(255, 0, 0, .3)",
       icon: "fa-solid fa-arrow-up-z-a",
     },
     {
       title: "Largest Book",
       data: insightData?.largest_book ? insightData?.largest_book : "",
-      color1: "rgb(234, 179, 8)",
-      color2: "rgb(234, 179, 8, .3)",
+      color1: "rgb(105, 124, 149)",
+      color2: "rgb(105, 124, 149, .3)",
       icon: "fa-regular fa-bookmark",
     },
     {
