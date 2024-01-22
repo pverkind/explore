@@ -86,3 +86,5 @@ If you encounter any issues or have suggestions, please open an issue. We apprec
 License - https://github.com/sohailmerchant/kitabapps/issues/new
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## End
