@@ -10,7 +10,6 @@ import { cleanBeforeDiff } from "../../../utility/Helper";
 import BookAlignmentHeader from "../SectionHeader/BookAlignmentHeader";
 
 const Books = ({ chartSpecificBar }) => {
-  console.log("Rendering Books (diff reader)");
   const {
     bookSectionRef,
     dataLoading,

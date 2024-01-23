@@ -18,15 +18,9 @@ import { Button } from "@mui/material";
 
 const SearchFilters = ({ handleResetFilters, getQuery }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { setFilterPanel, showFilters, searchField } = useContext(Context);
+  const { setFilterPanel, showFilters, searchField, setAdvanceSearch } =
+    useContext(Context);
   const [text, setText] = useState("");
-
-  // max_tok_count: "",
-  //   min_tok_count: "",
-  //   editor: "",
-  //   edition_place: "",
-  //   publisher: "",
-  //   edition_date: "",
 
   const handleFilterPanel = () => {
     setFilterPanel(!showFilters);
@@ -44,12 +38,24 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
   };
 
   const clearAllAdvanceSearchFilter = () => {
+    setAdvanceSearch({
+      max_tok_count: "",
+      min_tok_count: "",
+      editor: "",
+      edition_place: "",
+      publisher: "",
+      edition_date: "",
+      died_before_AH: "",
+      died_after_AH: "",
+    });
     searchParams.delete("max_tok_count");
     searchParams.delete("min_tok_count");
     searchParams.delete("editor");
     searchParams.delete("edition_place");
     searchParams.delete("publisher");
     searchParams.delete("edition_date");
+    searchParams.delete("died_before_AH");
+    searchParams.delete("died_after_AH");
     setSearchParams(searchParams);
   };
 

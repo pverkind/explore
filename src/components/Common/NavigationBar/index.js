@@ -12,7 +12,38 @@ import Avatar from "@mui/material/Avatar";
 import { makeStyles } from "@mui/styles";
 //import AlertComponent from "../AlertComponent";
 
-const REPO_NAME = "explore";
+export const REPO_NAME = "explore";
+
+const pages = [
+  {
+    label: "About",
+    link: "http://kitab-project.org/about/",
+  },
+  {
+    label: "Corpus and Data",
+    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/insight`,
+  },
+  {
+    label: "Methods",
+    link: "http://kitab-project.org/methods",
+  },
+  {
+    label: "Research",
+    link: "http://kitab-project.org/blogs",
+  },
+  {
+    label: "Arabic Pasts",
+    link: "http://kitab-project.org/research/events/arabic-pasts",
+  },
+  {
+    label: "OpenITI Corpus Metadata",
+    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/metadata`,
+  },
+  {
+    label: "Visualisation",
+    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/visualise`,
+  },
+];
 
 const useStyles = makeStyles((theme) => ({
   responsiveBrand: {
@@ -26,37 +57,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Navigationbar = () => {
-  const pages = [
-    {
-      label: "About",
-      link: "http://kitab-project.org/about/",
-    },
-    {
-      label: "Corpus and Data",
-      link: `/${REPO_NAME}/#/insight`,
-    },
-    {
-      label: "Methods",
-      link: "http://kitab-project.org/methods",
-    },
-    {
-      label: "Research",
-      link: "http://kitab-project.org/blogs",
-    },
-    {
-      label: "Arabic Pasts",
-      link: "http://kitab-project.org/research/events/arabic-pasts",
-    },
-    {
-      label: "OpenITI Corpus Metadata",
-      link: `/${REPO_NAME}/#/metadata`,
-    },
-    {
-      label: "Visualisation",
-      link: `/${REPO_NAME}/#/visualise`,
-    },
-  ];
-
   const classes = useStyles();
   const [anchorElNav, setAnchorElNav] = useState(null);
 
@@ -102,7 +102,7 @@ const Navigationbar = () => {
             }}
           >
             <Link
-              to={`/${REPO_NAME}`}
+              href={`${!REPO_NAME ? "" : `/${REPO_NAME}/`}`}
               sx={{
                 width: "100px",
                 display: "flex",

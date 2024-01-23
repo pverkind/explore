@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MetadataTable = () => {
+const MetadataTable = ({ isHome }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { version } = useParams();
   const location = useLocation();
@@ -165,7 +165,11 @@ const MetadataTable = () => {
   }, []);
 
   useEffect(() => {
-    navigate(`/metadata/${releaseCode}/${location.search}`);
+    if (!isHome) {
+      navigate(`/metadata/${releaseCode}/${location.search}`);
+    } else {
+      navigate(`/${releaseCode}/${location.search}`);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [releaseCode]);
 

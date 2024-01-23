@@ -1,17 +1,51 @@
 import { Box, IconButton, Modal, Typography } from "@mui/material";
-import React, { useState } from "react";
-import Contents from "./Contents";
-import { Button } from "@mui/material";
-import { CircularProgress } from "@mui/material";
-import axios from "axios";
+import React from "react";
 import { useContext } from "react";
+import { useState } from "react";
 import { Context } from "../../../App";
-import { parseImech } from "../../../utility/Helper";
+import { Switch } from "@mui/material";
+import { FormControlLabel } from "@mui/material";
+import { imechToHtml } from "../../../utility/Helper";
+import { TableRow } from "@mui/material";
+import { TableCell } from "@mui/material";
+import { TableBody } from "@mui/material";
+import { Table } from "@mui/material";
+import { TableContainer } from "@mui/material";
 
 // open the reader (read 300 milestones at once)
-const ExpandView = ({ open, handleClose, data, alignmentOnly }) => {
-  const { metaData, books, setBooks } = useContext(Context);
-  console.log("ExpandView");
+const ExpandView = ({ open, handleClose, rows, spCol, nextLoad, prevLoad }) => {
+  const { downloadedTexts, releaseCode, books } = useContext(Context);
+  const [fontSizeState, setFontSizeState] = useState(20);
+  const [isFullBook, setIsFullBook] = useState(false);
+
+  const fullBook =
+    spCol.field === "book1"
+      ? downloadedTexts[releaseCode][books.book1.versionCode]?.downloadedMs
+          ?.msTexts
+      : downloadedTexts[releaseCode][books.book2.versionCode]?.downloadedMs
+          ?.msTexts;
+
+  const handleFontSize = (eType) => {
+    if (eType === "plus") {
+      if (fontSizeState >= 40) {
+        setFontSizeState(40);
+      } else {
+        setFontSizeState(fontSizeState + 4);
+      }
+    } else {
+      if (fontSizeState <= 16) {
+        setFontSizeState(16);
+      } else {
+        setFontSizeState(fontSizeState - 4);
+      }
+    }
+  };
+
+  const handleFullbook = (e) => {
+    setIsFullBook(e.target.checked);
+  };
+
+  // Expand View Completed
 
   const style = {
     position: "absolute",
@@ -23,125 +57,6 @@ const ExpandView = ({ open, handleClose, data, alignmentOnly }) => {
     bgcolor: "background.paper",
     boxSizing: "border-box",
   };
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [fontSize, setFontSize] = useState(20);
-  const bookNumber = data?.bookNumber;
-
-  // calculate the last milestone in the entire book:
-  const lastMsInBook = Math.ceil(data?.ms / 300);
-
-  // get the 300 milestones data that was loaded from i.mech:
-  const section300Ms = data?.bookNumber === 1 ? books?.book1 : books?.book2;
-
-  // get the milestone dictionary (ms: ms_text) from that object:
-  const sectionMsDict = section300Ms?.content ? section300Ms?.content : {};
-
-  // get the number of the first and last milestones in the downloaded section:
-  const lastDownloadedMS =
-    Object.keys(sectionMsDict)[Object.keys(sectionMsDict).length - 1];
-  const firstDownloadedMS = parseInt(Object.keys(sectionMsDict)[0]) - 1;
-
-  // handle downloading more milestones from i.mech
-  // (after last downloaded milestone):
-  const handleNext = async () => {
-    setIsLoading(true);
-    if (lastMsInBook > lastDownloadedMS) {
-      const msSection = () => {
-        return parseInt(lastDownloadedMS) + 300;
-      };
-      const annotated =
-        (bookNumber === 1
-          ? metaData?.book1?.annotationStatus
-          : metaData?.book2.annotationStatus) === "(not yet annotated)"
-          ? ""
-          : `.${
-              bookNumber === 1
-                ? metaData?.book1?.annotationStatus
-                : metaData?.book2.annotationStatus
-            }`;
-      const version = `${
-        bookNumber === 1
-          ? metaData?.book1?.versionCode
-          : metaData?.book2.versionCode
-      }-ara1${annotated}`;
-
-      const response = await axios.get(
-        `https://raw.githubusercontent.com/OpenITI/i.mech/master/data/${version}-${msSection()
-          .toString()
-          .padStart(5, "0")}`
-      );
-      const parsedBook = parseImech(response.data);
-      const updatedData =
-        bookNumber === 1
-          ? { ...books?.book1?.content, ...parsedBook }
-          : { ...books?.book2?.content, ...parsedBook };
-
-      if (bookNumber === 1) {
-        setBooks({
-          ...books,
-          book1: { ...books?.book1, content: updatedData },
-        });
-      } else {
-        setBooks({
-          ...books,
-          book2: { ...books?.book2, content: updatedData },
-        });
-      }
-      setIsLoading(false);
-    }
-  };
-
-  // handle downloading more milestones from i.mech
-  // (before first downloaded milestone):
-  const handlePrev = async () => {
-    setIsLoading(true);
-    if (firstDownloadedMS >= 300) {
-      const msSection = () => {
-        return firstDownloadedMS;
-      };
-      const annotated =
-        (bookNumber === 1
-          ? metaData?.book1?.annotationStatus
-          : metaData?.book2.annotationStatus) === "(not yet annotated)"
-          ? ""
-          : `.${
-              bookNumber === 1
-                ? metaData?.book1?.annotationStatus
-                : metaData?.book2.annotationStatus
-            }`;
-      const version = `${
-        bookNumber === 1
-          ? metaData?.book1?.versionCode
-          : metaData?.book2.versionCode
-      }-ara1${annotated}`;
-
-      const response = await axios.get(
-        `https://raw.githubusercontent.com/OpenITI/i.mech/master/data/${version}-${msSection()
-          .toString()
-          .padStart(5, "0")}`
-      );
-      const parsedBook = parseImech(response.data);
-      const updatedData =
-        bookNumber === 1
-          ? { ...books?.book1?.content, ...parsedBook }
-          : { ...books?.book2?.content, ...parsedBook };
-
-      if (bookNumber === 1) {
-        setBooks({
-          ...books,
-          book1: { ...books?.book1, content: updatedData },
-        });
-      } else {
-        setBooks({
-          ...books,
-          book2: { ...books?.book2, content: updatedData },
-        });
-      }
-      setIsLoading(false);
-    }
-  };
-  console.log("Render ExpandView");
   return (
     <Modal
       open={open}
@@ -160,21 +75,26 @@ const ExpandView = ({ open, handleClose, data, alignmentOnly }) => {
         >
           <Box px={"20px"}>
             <Typography variant="body1">
-              {data?.bookNumber === 1 ? "Book 1" : "Book 2"} {": "}
-              {section300Ms?.title} {data?.ms}
+              {spCol?.field} : {spCol?.headerName}
             </Typography>
           </Box>
 
           <Box px={"20px"} display={"flex"} alignItems={"center"} gap={"10px"}>
+            <FormControlLabel
+              checked={isFullBook}
+              onChange={handleFullbook}
+              control={<Switch defaultChecked />}
+              label="Full Book"
+            />
             <IconButton
               sx={{ fontSize: "18px" }}
-              onClick={() => setFontSize(fontSize <= 16 ? 16 : fontSize - 4)}
+              onClick={() => handleFontSize("minus")}
             >
               <i className="fa-solid fa-minus"></i>
             </IconButton>
             <IconButton
               sx={{ fontSize: "18px" }}
-              onClick={() => setFontSize(fontSize >= 40 ? 40 : fontSize + 4)}
+              onClick={() => handleFontSize("plus")}
             >
               <i className="fa-solid fa-plus"></i>
             </IconButton>
@@ -195,101 +115,69 @@ const ExpandView = ({ open, handleClose, data, alignmentOnly }) => {
               xl: "400px",
             },
             boxSizing: "border-box",
+            py: "50px",
           }}
         >
-          <Box pt="50px">
-            {isLoading && (
-              <Box
-                sx={{
-                  display: "flex",
-                  width: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "max-content",
-                  py: "20px",
-                }}
-              >
-                <CircularProgress size={30} />
-              </Box>
-            )}
-            {!isLoading && firstDownloadedMS >= 150 ? (
-              <Button sx={{ width: "100%", mt: "5px" }} onClick={handlePrev}>
-                Load Previous
-              </Button>
-            ) : (
-              ""
-            )}
-
-            {firstDownloadedMS === 0 ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  width: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "max-content",
-                  pt: "50px",
-                }}
-              >
-                <Typography fontWeight={600} variant="h5">
-                  Start Of The Book
-                </Typography>
-              </Box>
-            ) : (
-              ""
-            )}
-          </Box>
-          <Contents
-            fullWidth
-            data={section300Ms}
-            fontSize={fontSize}
-            bookNumber={data?.bookNumber}
-            alignmentOnly={alignmentOnly}
-            parsedBookAlignment={data}
-            isLeft={true}
-          />
-          <Box pb="50px">
-            {isLoading && (
-              <Box
-                sx={{
-                  display: "flex",
-                  width: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "max-content",
-                  py: "20px",
-                }}
-              >
-                <CircularProgress size={30} />
-              </Box>
-            )}
-            {!isLoading && lastMsInBook > lastDownloadedMS ? (
-              <Button sx={{ width: "100%", mt: "5px" }} onClick={handleNext}>
-                Load Next
-              </Button>
-            ) : (
-              ""
-            )}
-
-            {lastMsInBook <= lastDownloadedMS ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  width: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "max-content",
-                  py: "60px",
-                }}
-              >
-                <Typography fontWeight={600} variant="h5">
-                  The End Of BOOk
-                </Typography>
-              </Box>
-            ) : (
-              ""
-            )}
-          </Box>
+          <TableContainer className="diffTableContainer">
+            <Table size="small" stickyHeader className="diffTable">
+              {isFullBook ? (
+                <TableBody
+                  sx={{
+                    body: {
+                      borderBottom: "none",
+                    },
+                  }}
+                  className="diffTableBody"
+                >
+                  {Object.keys(fullBook).map((item, i) => (
+                    <TableRow key={i} className={"diffTableRow"}>
+                      <TableCell
+                        dir="rtl"
+                        align="right"
+                        sx={{
+                          verticalAlign: "top",
+                          fontSize: `${fontSizeState}px`,
+                        }}
+                        className={"diffTableCell"}
+                        dangerouslySetInnerHTML={{
+                          __html: imechToHtml(Object.values(fullBook)[i]),
+                        }}
+                      ></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              ) : (
+                <TableBody
+                  sx={{
+                    body: {
+                      borderBottom: "none",
+                    },
+                  }}
+                  className="diffTableBody"
+                >
+                  {<TableRow className={"diffTableRow"}>{prevLoad}</TableRow>}
+                  {rows.map((row, rowIndex) => (
+                    <TableRow key={rowIndex + 1} className={"diffTableRow"}>
+                      <TableCell
+                        key={`${rowIndex + 1}-${spCol?.field}`}
+                        dir="rtl"
+                        align="right"
+                        sx={{
+                          verticalAlign: "top",
+                          fontSize: `${fontSizeState}px`,
+                        }}
+                        className={"diffTableCell"}
+                        dangerouslySetInnerHTML={{
+                          __html: row[spCol?.field],
+                        }}
+                      ></TableCell>
+                    </TableRow>
+                  ))}
+                  {<TableRow className={"diffTableRow"}>{nextLoad}</TableRow>}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
         </Box>
       </Box>
     </Modal>

@@ -3,6 +3,9 @@ import { Box } from "@mui/material";
 import DateFilter from "./filters/DateFilter";
 import AlignmentsFilter from "./filters/AlignmentsFilter";
 import BookCharsFilter from "./filters/BookCharsFilter";
+import SelfReuseFilter from "./filters/SelfReuseFilter";
+
+
 
 const MultiFilter = (props) => {
   return (
@@ -13,6 +16,7 @@ const MultiFilter = (props) => {
         marginLeft: "50px",
       }}
     >
+      <SelfReuseFilter/>
       <DateFilter
         dateRange={props.dateRange}
         setDateRange={props.setDateRange}

@@ -5,19 +5,19 @@ import SortingComponent from "./SortingButtons/SortingComponent";
 const TableHeader = ({ columns, classes }) => {
   const getWidth = (value) => {
     if (value === "More") {
-      return "10%";
+      return "9%";
     } else if (value === "Text Reuse") {
-      return "10%";
+      return "9%";
     } else if (value === "Author Death Date") {
-      return "10%";
+      return "9%";
     } else if (value === "Token Count") {
-      return "10%";
+      return "9%";
     } else if (value === "Book Title") {
       return "30%";
     } else if (value === "Author") {
-      return "15%";
+      return "13%";
     } else if (value === "Version ID") {
-      return "15%";
+      return "14%";
     } else {
       return "auto";
     }
@@ -87,15 +87,6 @@ const TableHeader = ({ columns, classes }) => {
           xs: "column",
           sm: "row",
         },
-        width: "100%",
-        padding: {
-          xs: "10px 0px",
-          sm: "0px",
-        },
-        alignItems: {
-          xs: "start",
-          sm: "center",
-        },
       }}
     >
       <TableRow
@@ -103,6 +94,7 @@ const TableHeader = ({ columns, classes }) => {
           width: "100%",
           display: "flex",
           alignItems: "center",
+          justifyContent: "start",
         }}
       >
         {columns.map((column) => (
@@ -117,10 +109,18 @@ const TableHeader = ({ columns, classes }) => {
                 sm: "flex",
               },
               alignItems: "center",
-              justifyContent: `${getAlign(column.headerName)} !important`,
+              justifyContent: {
+                xl: `${getAlign(column.headerName)} !important`,
+                md: "center !important",
+              },
             }}
           >
-            <Box display={"flex"} alignItems={"center"} lineHeight={"18px"}>
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              lineHeight={"18px"}
+              textAlign="center"
+            >
               {returnComponent(column.headerName)}
               {column.headerName}
             </Box>

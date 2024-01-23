@@ -84,7 +84,6 @@ const NavigationAndStats = () => {
       CSVFile = await downloadCsvData(csvUrl);
     }
 
-
     if (Error.prototype.isPrototypeOf(CSVFile)) {
       // If the csv file is not found on the server, show an error message:
       setCheckedNotification("Data Not Available: " + csvUrl);
@@ -207,9 +206,7 @@ const NavigationAndStats = () => {
             </>
           )}
 
-          <Box>
-            <DownloadData data={rows} status={status} />
-          </Box>
+          <Box>{rows && <DownloadData data={rows} status={status} />}</Box>
 
           {checkedBooks.length === 0 ? (
             ""

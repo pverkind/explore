@@ -6,6 +6,7 @@ import BookTitleCell from "./BookTitleCell";
 import AuthorCell from "./AuthorCell";
 import ReuseCell from "./ReuseCell";
 import MoreCell from "./MoreCell";
+import CountToken from "./CountToken";
 
 const TableBodyComponent = ({ classes }) => {
   const { rows } = useContext(Context);
@@ -82,34 +83,7 @@ const TableBodyComponent = ({ classes }) => {
             </Typography>
           </TableCell>
 
-          <TableCell
-            className={classes.tableCell}
-            sx={{
-              width: {
-                xs: "100%",
-                md: "10%",
-              },
-              border: "none",
-              display: "flex",
-              justifyContent: {
-                xs: "space-between !important",
-                md: "center !important",
-              },
-              boxSizing: "border-box",
-            }}
-          >
-            <Typography>{row?.release_version?.tok_length}</Typography>
-            <Typography
-              sx={{
-                display: {
-                  xs: "block",
-                  md: "none",
-                },
-              }}
-            >
-              Token Count
-            </Typography>
-          </TableCell>
+          <CountToken classes={classes} row={row} />
 
           <ReuseCell classes={classes} row={row} />
 

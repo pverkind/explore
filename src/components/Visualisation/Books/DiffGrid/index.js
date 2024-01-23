@@ -17,15 +17,9 @@ import { Tooltip } from "@mui/material";
 import { useState } from "react";
 
 const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
-  console.log("parsedBookAlignment", parsedBookAlignment);
   const { isFlipped, books, displayMs, setDisplayMs } = useContext(Context);
 
   const [open, setOpen] = React.useState(false);
-  const [expandViewData, setExpandViewData] = useState({
-    data: {},
-    bookNumber: null,
-    ms: "",
-  });
 
   let columns = [
     {
@@ -38,13 +32,16 @@ const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
     },
   ];
   columns = isFlipped ? columns.reverse() : columns;
-
   const createMsContext = (
     msNo,
     beforeAlignment,
     afterAlignment,
     displayMs
   ) => {
+    console.log("msNo", msNo);
+    console.log("beforeAlignment", beforeAlignment);
+    console.log("afterAlignment", afterAlignment);
+    console.log("displayMs", displayMs);
     let before = [];
     let after = [];
     const sortedKeys = Object.keys(displayMs).sort();
@@ -71,6 +68,7 @@ const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
     );
     return [before.join("\n"), after.join("\n")];
   };
+
   const [before1, after1] = createMsContext(
     books.book1.ms,
     parsedBookAlignment.beforeAlignment1,
@@ -83,24 +81,21 @@ const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
     parsedBookAlignment.afterAlignment2,
     displayMs.book2
   );
+
   const beforeAlignmentRow = [
     {
       book1: before1,
       book2: before2,
     },
   ];
+
   const afterAlignmentRow = [
     {
       book1: after1,
       book2: after2,
     },
   ];
-  /*const beforeAlignmentRow = [
-    { 
-        book1: imechToHtml(parsedBookAlignment.beforeAlignment1), 
-        book2: imechToHtml(parsedBookAlignment.beforeAlignment2)
-    }
-  ];*/
+
   const alignmentRows = [];
   const splitS1 = parsedBookAlignment.s1.split(/ *###NEW_ROW### */g);
   const splitS2 = parsedBookAlignment.s2.split(/ *###NEW_ROW### */g);
@@ -110,51 +105,71 @@ const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
       book2: splitS2[i],
     });
   }
-  /*const afterAlignmentRow = [
-    { 
-        book1: imechToHtml(parsedBookAlignment.afterAlignment1), 
-        book2: imechToHtml(parsedBookAlignment.afterAlignment2)
-    }
-  ];*/
+
   const rows = alignmentOnly
     ? alignmentRows
     : [...beforeAlignmentRow, ...alignmentRows, ...afterAlignmentRow];
 
-  const handleOpen = () => {
-    console.log("OPENING!");
-    console.log(1);
-    console.log(1);
-    console.log(parsedBookAlignment);
-    console.log(true);
-    console.log("-----");
-    setExpandViewData({
-      bookNumber: 1,
-      ms: 1,
-      data: parsedBookAlignment,
-    });
-    console.log(expandViewData);
+  const [spCol, setSpCol] = useState();
+  const handleOpen = (val) => {
+    setSpCol(val);
     setOpen(true);
-    // setTimeout(() => {
-    //   if (focusMilestone1.current && bookNumber === 1) {
-    //     focusMilestone1.current.scrollIntoView(true);
-    //   }
-    //   if (focusMilestone2.current && bookNumber === 2) {
-    //     focusMilestone2.current.scrollIntoView(true);
-    //   }
-    // }, 1000);
-    console.log("EXITING. To books?");
   };
 
   const handleClose = () => setOpen(false);
 
   return (
     <TableContainer className="diffTableContainer">
-      <ExpandView
-        open={open}
-        handleClose={handleClose}
-        data={expandViewData}
-        alignmentOnly={alignmentOnly}
-      />
+      {open && (
+        <ExpandView
+          open={open}
+          handleClose={handleClose}
+          rows={[...beforeAlignmentRow, ...alignmentRows, ...afterAlignmentRow]}
+          spCol={spCol}
+          prevLoad={
+            spCol.field === "book1" ? (
+              <NextMilestoneLoader
+                alignmentOnly={alignmentOnly}
+                displayMs={displayMs}
+                setDisplayMs={setDisplayMs}
+                bookNo={isFlipped ? 2 : 1}
+                books={books}
+                previous={true}
+              />
+            ) : (
+              <NextMilestoneLoader
+                alignmentOnly={alignmentOnly}
+                displayMs={displayMs}
+                setDisplayMs={setDisplayMs}
+                bookNo={isFlipped ? 1 : 2}
+                books={books}
+                previous={true}
+              />
+            )
+          }
+          nextLoad={
+            spCol.field === "book1" ? (
+              <NextMilestoneLoader
+                alignmentOnly={alignmentOnly}
+                displayMs={displayMs}
+                setDisplayMs={setDisplayMs}
+                bookNo={isFlipped ? 2 : 1}
+                books={books}
+                previous={false}
+              />
+            ) : (
+              <NextMilestoneLoader
+                alignmentOnly={alignmentOnly}
+                displayMs={displayMs}
+                setDisplayMs={setDisplayMs}
+                bookNo={isFlipped ? 1 : 2}
+                books={books}
+                previous={false}
+              />
+            )
+          }
+        />
+      )}
       <Table size="small" stickyHeader className="diffTable">
         <TableHead columns={columns} className="diffTableHeader">
           <TableRow className={"diffTableHeaderRow"}>
@@ -163,20 +178,20 @@ const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
                 className={"diffHeaderCell"}
                 key={colIndex}
                 align="center"
-                style={{ width: "50%", background: "red !important" }}
+                style={{ width: "50%" }}
               >
                 {col.headerName}
-                {console.log(col)}
-                {!alignmentOnly && (
-                  <Tooltip title="Expand View" placement="top">
-                    <IconButton onClick={handleOpen} sx={{ ml: "10px" }}>
-                      <i
-                        className="fa-solid fa-expand"
-                        style={{ fontSize: "12px" }}
-                      ></i>
-                    </IconButton>
-                  </Tooltip>
-                )}
+                <Tooltip title="Expand View" placement="top">
+                  <IconButton
+                    onClick={() => handleOpen(col)}
+                    sx={{ ml: "10px" }}
+                  >
+                    <i
+                      className="fa-solid fa-expand"
+                      style={{ fontSize: "12px" }}
+                    ></i>
+                  </IconButton>
+                </Tooltip>
               </TableCell>
             ))}
           </TableRow>
@@ -190,24 +205,27 @@ const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
           className="diffTableBody"
         >
           <>
-            <TableRow className={"diffTableRow"}>
-              <NextMilestoneLoader
-                alignmentOnly={alignmentOnly}
-                displayMs={displayMs}
-                setDisplayMs={setDisplayMs}
-                bookNo={isFlipped ? 2 : 1}
-                books={books}
-                previous={true}
-              />
-              <NextMilestoneLoader
-                alignmentOnly={alignmentOnly}
-                displayMs={displayMs}
-                setDisplayMs={setDisplayMs}
-                bookNo={isFlipped ? 1 : 2}
-                books={books}
-                previous={true}
-              />
-            </TableRow>
+            {!alignmentOnly && (
+              <TableRow className={"diffTableRow"}>
+                <NextMilestoneLoader
+                  alignmentOnly={alignmentOnly}
+                  displayMs={displayMs}
+                  setDisplayMs={setDisplayMs}
+                  bookNo={isFlipped ? 2 : 1}
+                  books={books}
+                  previous={true}
+                />
+                <NextMilestoneLoader
+                  alignmentOnly={alignmentOnly}
+                  displayMs={displayMs}
+                  setDisplayMs={setDisplayMs}
+                  bookNo={isFlipped ? 1 : 2}
+                  books={books}
+                  previous={true}
+                />
+              </TableRow>
+            )}
+
             {rows.map((row, rowIndex) => (
               <TableRow key={rowIndex + 1} className={"diffTableRow"}>
                 {columns.map((col) => (
@@ -224,24 +242,26 @@ const DiffGrid = ({ parsedBookAlignment, alignmentOnly }) => {
                 ))}
               </TableRow>
             ))}
-            <TableRow className={"diffTableRow"}>
-              <NextMilestoneLoader
-                alignmentOnly={alignmentOnly}
-                displayMs={displayMs}
-                setDisplayMs={setDisplayMs}
-                bookNo={isFlipped ? 2 : 1}
-                books={books}
-                previous={false}
-              />
-              <NextMilestoneLoader
-                alignmentOnly={alignmentOnly}
-                displayMs={displayMs}
-                setDisplayMs={setDisplayMs}
-                bookNo={isFlipped ? 1 : 2}
-                books={books}
-                previous={false}
-              />
-            </TableRow>
+            {!alignmentOnly && (
+              <TableRow className={"diffTableRow"}>
+                <NextMilestoneLoader
+                  alignmentOnly={alignmentOnly}
+                  displayMs={displayMs}
+                  setDisplayMs={setDisplayMs}
+                  bookNo={isFlipped ? 2 : 1}
+                  books={books}
+                  previous={false}
+                />
+                <NextMilestoneLoader
+                  alignmentOnly={alignmentOnly}
+                  displayMs={displayMs}
+                  setDisplayMs={setDisplayMs}
+                  bookNo={isFlipped ? 1 : 2}
+                  books={books}
+                  previous={false}
+                />
+              </TableRow>
+            )}
           </>
         </TableBody>
       </Table>

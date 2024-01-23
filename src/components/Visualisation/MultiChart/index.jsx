@@ -24,6 +24,7 @@ const MultiVisual = (props) => {
     setXScale,
     setYScale,
     colorScale,
+    selfReuseOnly,
     //setChartData,
     /*Books,
     setBooks,
@@ -44,6 +45,8 @@ const MultiVisual = (props) => {
 
   const book1 = metaData.book1;
   const mainBookURI = book1.bookTitle.path;
+  const mainAuthor = mainBookURI.split(".")[0];
+  const mainAuthorDate = parseInt(mainAuthor.slice(0, 4));
 
   const downloadFileName = `${book1?.versionCode}_all.png`;
 
@@ -71,6 +74,9 @@ const MultiVisual = (props) => {
     //bookIndexDict,
     bookUriDict,
   } = chartData;
+  /*console.log("CHARTDATA:");
+  console.log(chartData);
+  console.log(bookStats);*/
 
   const [dateRange, setDateRange] = useState([0, 1500]);
   let maxbc = Math.max(...bookStats.map((d) => d.ch_match));
@@ -81,6 +87,19 @@ const MultiVisual = (props) => {
   const [msCharsRange, setMsCharsRange] = useState([1, maxmschars]);
 
   // FILTER DATA:
+  let dataDateRange = dateRange;
+  if (selfReuseOnly) {
+    // only keep the items whose author is the same as the author of the main book:
+    msData = msData.filter(
+      (d) => bookUriDict[d.id2][0].split(".")[0] === mainAuthor
+    );
+    bookStats = bookStats.filter((d) => d.book.split(".")[0] === mainAuthor);
+    dataDateRange = [mainAuthorDate, mainAuthorDate + 1];
+  }
+  /*console.log("AFTER SELFREUSE FILTER:");
+  console.log(msData);
+  console.log(bookStats);
+  console.log(msStats);*/
 
   // filter by date:
   let [minDate, maxDate] = dateRange;
@@ -100,14 +119,53 @@ const MultiVisual = (props) => {
     return (
       d.date >= minDate &&
       d.date <= maxDate &&
-      d.ch_match >= minBookChars &&
-      d.ch_match <= maxBookChars &&
+      (selfReuseOnly && d.book === mainBookURI
+        ? 1
+        : d.ch_match >= minBookChars) &&
+      (selfReuseOnly && d.book === mainBookURI
+        ? 1
+        : d.ch_match <= maxBookChars) &&
       d.alignments >= minAlignments &&
       d.alignments <= maxAlignments
     );
   });
 
-  // recalculate msStats?!
+  // recalculate the index numbers (X values):
+  let bookIndexDict = {}; // keys: versionID, values: bookIndex
+  bookUriDict = {}; // keys: versionID, values: textURI
+  for (let i = 0; i < bookStats.length; i++) {
+    bookStats[i]["bookIndex"] = i + 1;
+    bookIndexDict[bookStats[i]["id"]] = i + 1;
+    bookUriDict[bookStats[i]["id"]] = [bookStats[i]["book"]];
+  }
+  for (let i = 0; i < msData.length; i++) {
+    try {
+      msData[i]["bookIndex"] = bookIndexDict[msData[i]["id2"]];
+    } catch (error) {}
+  }
+
+  // recalculate msStats:
+  msStats = {};
+  //msBooks = {};
+  for (let i = 0; i < msData.length; i++) {
+    if (msData[i]["id2"] !== versionCode) {
+      // add the length of the alignment in book 2 to the aggregator for ms1:
+      msStats[msData[i]["ms1"]] =
+        (msStats[msData[i]["ms1"]] || 0) + msData[i]["ch_match"];
+      // count the number of books that have text reuse for ms1:
+      //msBooks[msData[i]["ms1"]] = (msBooks[msData[i]["ms1"]] || 0) + 1;
+    }
+  }
+  // convert msStats Object into an array of objects:
+  msStats = Object.keys(msStats).map((key) => ({
+    ms_id: parseInt(key),
+    ch_match_total: msStats[key],
+  }));
+
+  /*console.log("AFTER OTHER FILTERS:");
+  console.log(msData);
+  console.log(bookStats);
+  console.log(msStats);*/
 
   const restoreCanvas = () => {
     // reload without filter search params
@@ -125,7 +183,6 @@ const MultiVisual = (props) => {
     (a,b) => a.ch_match < b.ch_match ? a : b
     ).ch_match;*/
   const [minChMatch, maxChMatch] = d3.extent(msData, (d) => d.ch_match);
-  console.log("maxChMatch: " + maxChMatch);
 
   let dotSize = Math.min(
     Math.ceil(width / bookStats.length / 2),
@@ -136,7 +193,7 @@ const MultiVisual = (props) => {
   const [toggle, setToggle] = useState(false);
 
   return (
-    <>
+    <Box sx={{ mt: "40px" }}>
       <SectionHeaderLayout
         item={{
           title: "One-to-Many Visualization",
@@ -212,7 +269,7 @@ const MultiVisual = (props) => {
             height={100}
             bookStats={bookStats}
             mainBookURI={mainBookURI}
-            dateRange={dateRange}
+            dateRange={dataDateRange}
           />
         </>
         <div className={"vizTooltip"} sx={{ style: "opacity: 0" }} />
@@ -227,7 +284,7 @@ const MultiVisual = (props) => {
         msCharsRange={msCharsRange}
         setMsCharsRange={setMsCharsRange}
       />
-    </>
+    </Box>
   );
 };
 

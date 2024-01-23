@@ -57,12 +57,17 @@ const ScatterPlot = (props) => {
   
   // initialize the svg on mount:
   useEffect(() => {
-    const t = `translate(${props.margin.left}, ${props.margin.top})`;
+    let t = `translate(${props.margin.left}, ${props.margin.top})`;
     d3.select(ref.current)
       .html("")
       .append("g")
         .attr("transform", t)
         .attr("class", "scatter-plot");
+    /*// add a grey background: 
+    g.append("rect")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("fill", "lightgrey");*/
   },[props.margin.left, props.margin.top]);
 
   // create the axes etc. for every change of relevant variables:

@@ -7,6 +7,7 @@ import SectionHeaderLayout from "../SectionHeader/SectionHeaderLayout";
 import VisualizationHeader from "../SectionHeader/VisualizationHeader";
 import { extractAlignment } from "../../../functions/alignmentFunctions";
 import { getMilestoneText } from "../../../functions/getMilestoneText";
+import Section from "../Metadata/Section";
 
 const Visual = (props) => {
   const {
@@ -851,7 +852,16 @@ const Visual = (props) => {
           },
         }}
       >
-        <Box display="flex" justifyContent="flex-end" mt="20px">
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mt="20px"
+        >
+          <Section
+            isVertical
+            data={isFlipped ? metaData?.book2 : metaData?.book1}
+          />
           <MSToggler
             isTop={isFlipped ? false : true}
             isBook1={isFlipped ? false : true}
@@ -931,7 +941,11 @@ const Visual = (props) => {
             </Box>
           )}
         </Box>
-        <Box display="flex" justifyContent="flex-end">
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Section
+            isVertical
+            data={isFlipped ? metaData?.book1 : metaData?.book2}
+          />
           <MSToggler
             isTop={isFlipped ? true : false}
             isBook1={isFlipped ? true : false}

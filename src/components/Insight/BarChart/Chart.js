@@ -70,7 +70,7 @@ function Chart({ width, height, data }) {
       .attr("x", 0)
       .attr("y", (d, i) => yScale(i))
       .attr("width", (d) => xScale(d.value.tok_length))
-      .attr("height", yScale.bandwidth())
+      .attr("height", 30)
       .attr("fill", "url(#barGradient)");
 
     // Adding text labels inside the bars
@@ -78,7 +78,7 @@ function Chart({ width, height, data }) {
       .append("text")
       .attr("class", "bar-label")
       .attr("x", (d) => xScale(d.value.tok_length) - 10) // Adjust the x position to start from the right
-      .attr("y", (d, i) => yScale(i) + yScale.bandwidth() / 2) // Center the text vertically
+      .attr("y", (d, i) => yScale(i) + 30 / 2) // Center the text vertically
       .attr("dy", "0.35em")
       .attr("fill", "white") // Set the text color
       .attr("text-anchor", "end") // Align the text to the end of the bar

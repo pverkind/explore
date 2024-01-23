@@ -40,7 +40,7 @@ const VersionIdCell = ({ row, classes }) => {
           xs: "flex",
           md: "block",
         },
-        justifyContent: "space-between",
+        justifyContent: "flex-right",
         alignItems: "center",
         border: "none",
         boxSizing: "border-box",

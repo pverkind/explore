@@ -3,7 +3,7 @@ import { Box, Slider, Typography } from "@mui/material";
 
 
 const AlignmentsFilter = (props) => {
-  console.log(props);
+  //console.log(props);
   const [sliderVal, setSliderVal] = useState(props.bookAlignRange);
 
   const handleChange = (e, newRange) => {
@@ -11,11 +11,11 @@ const AlignmentsFilter = (props) => {
     setSliderVal(newRange);
   }
   const handleChangeCommitted = (e, newRange) => {
-    console.log(props.setBookAlignRange);
+    //console.log(props.setBookAlignRange);
     props.setBookAlignRange(newRange);
   }
 
-  console.log(props.bookAlignRange);
+  //console.log(props.bookAlignRange);
   return (
     <Box 
       sx={{ 

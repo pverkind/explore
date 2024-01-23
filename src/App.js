@@ -2,7 +2,6 @@ import "./App.css";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { green, red } from "@mui/material/colors";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
 import Insight from "./pages/Insight";
 import Visualisation from "./pages/Visualisation";
 import CorpusMetadata from "./pages/CorpusMetadata";
@@ -10,8 +9,6 @@ import { createContext, useRef, useState } from "react";
 import DiffViewer from "./pages/DiffViewer";
 import LeftSidePanel from "./components/CorpusMetadata/Drawer";
 import * as saveSvgAsPng from "save-svg-as-png";
-import { config } from "./config";
-const { THIS_BASE_URL } = config;
 
 const theme = createTheme({
   palette: {
@@ -221,6 +218,8 @@ function App() {
   const [removePunct, setRemovePunct] = useState(false);
   const [removeTags, setRemoveTags] = useState(true);
 
+  const [selfReuseOnly, setSelfReuseOnly] = useState(false);
+
   const toggleSidePanel = (val, tIndex) => {
     setTabIndex(tIndex);
     setVersionDetails(val);
@@ -240,13 +239,13 @@ function App() {
     );
     textElement.setAttribute(
       "x",
-      svg.clientWidth - (THIS_BASE_URL + url).length * 7.5
+      svg.clientWidth - (window.location.origin + url).length * 7.5
     ); // X-coordinate
     textElement.setAttribute("y", 20); // Y-coordinate
     textElement.setAttribute("font-size", "14px"); // Font size
     textElement.setAttribute("fill", "black"); // Fill color
     // Create a text node with the text content
-    var textNode = document.createTextNode(THIS_BASE_URL + url);
+    var textNode = document.createTextNode(window.location.origin + url);
     // Append the text node to the <text> element
     textElement.appendChild(textNode);
     // Append the <text> element to the SVG
@@ -258,8 +257,6 @@ function App() {
       backgroundColor: "white",
     });
   };
-
-  // kjh
 
   return (
     <Context.Provider
@@ -380,6 +377,8 @@ function App() {
         setRemovePunct,
         removeTags,
         setRemoveTags,
+        selfReuseOnly,
+        setSelfReuseOnly,
         downloadPNG,
         advanceSearch,
         setAdvanceSearch,
@@ -389,7 +388,8 @@ function App() {
         <div className="App">
           <Router basename="/">
             <Routes>
-              <Route path="" element={<HomePage />} />
+              <Route path="" element={<CorpusMetadata isHome />} />
+              <Route path="/:version" element={<CorpusMetadata isHome />} />
               <Route path="/metadata/" element={<CorpusMetadata />} />
               <Route path="/metadata/:version" element={<CorpusMetadata />} />
               <Route path="/insight" element={<Insight />} />

@@ -15,7 +15,7 @@ const SideBar = (props) => {
       .append("g")
         .attr("transform", t)
         .attr("class", "side-bar");
-  },[props.margin.top]);
+  });
 
   // create the axes etc. for every change of relevant variables:
   useEffect(() => {
@@ -69,7 +69,7 @@ const SideBar = (props) => {
     
     // add/update data:
     let barHeight = Math.min(3,props.height/props.msStats.length);
-    console.log(barHeight);
+    //barPlot.selectAll(".bar").remove();
     barPlot
       .selectAll("rect")
       .data(props.msStats, d => d)
@@ -89,8 +89,8 @@ const SideBar = (props) => {
             .style("stroke", "#3FB8AF")
             // add tooltip:
             .on("mouseover", function(event, d) {
-                console.log("Milestone "+d.ms_id);
-                console.log(tooltipDiv);
+                /*console.log("Milestone "+d.ms_id);
+                console.log(tooltipDiv);*/
                 // make the tooltip visible:
                 tooltipDiv.transition()
                     .duration(200)
@@ -100,7 +100,7 @@ const SideBar = (props) => {
                 tooltipMsg += "<br/>Total characters matched: " + d3.format(",")(d.ch_match_total);
                 
                 // calculate position on the page:
-                console.log(d3.select(this) );
+                //console.log(d3.select(this) );
                 // build the tooltip:
                 tooltipDiv.html(tooltipMsg)
                     .style("left", event.pageX-100 + "px")
@@ -119,13 +119,13 @@ const SideBar = (props) => {
         update => (
             update
         ),*/
-        // remove superfluous circles in the graph:
+        // remove superfluous bars in the graph:
         exit => (
             exit.call(exit => exit.remove())
         )
       )    
     
-  });
+  }, [props.msStats, props.height, props.mainBookMilestones, props.width]);
   
   return (
     <svg 
