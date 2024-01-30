@@ -14,6 +14,7 @@ import GetFormattedFields from "../../../Common/GetFormattedFields";
 const AuthorDetails = ({ fullData }) => {
   const author = fullData?.text?.author[0];
 
+  // organize author data
   const data = [
     {
       header: displayNamesAuthor.author_uri,
@@ -37,10 +38,6 @@ const AuthorDetails = ({ fullData }) => {
       header: displayNamesAuthor.authorDateCE,
       body: author?.date_CE,
     },
-    /*{
-      header: displayNamesAuthor.authorDateString,
-      body: author?.date_str,
-    },*/
     {
       header: displayNamesAuthor.notes,
       body: author?.notes.replace(/¶ */g, " "),
@@ -48,9 +45,6 @@ const AuthorDetails = ({ fullData }) => {
     {
       header: displayNamesAuthor.name_elements,
     },
-    /*{
-      header: displayNamesAuthor.related_persons,
-    },*/
   ];
 
   return (

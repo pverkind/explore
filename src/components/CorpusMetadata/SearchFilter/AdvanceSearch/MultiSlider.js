@@ -16,6 +16,7 @@ export default function MultiSlider({ min, max, handler, label }) {
     max ? max : maxTokCount,
   ]);
 
+  // multi filter selection function
   const handleChange2 = (event, newValue, activeThumb) => {
     if (!Array.isArray(newValue)) {
       return;

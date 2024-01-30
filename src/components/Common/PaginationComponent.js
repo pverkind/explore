@@ -8,11 +8,13 @@ const PaginationComponent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { totalRecords, rowsPerPage, page } = useContext(Context);
 
+  // change prev and next page from pagination bar
   const handleChangePage = async (newPage) => {
     const params = Object.fromEntries([...searchParams]);
     setSearchParams({ ...params, page: newPage });
   };
 
+  // change rows per page from pagination dropdown
   const handleChangeRowsPerPage = (event) => {
     const params = Object.fromEntries([...searchParams]);
     setSearchParams({ ...params, rowsPerPage: +event.target.value });

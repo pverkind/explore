@@ -19,6 +19,7 @@ function MetaFilters() {
     return str;
   };
 
+  // change annotation filters
   const handleChange = (event) => {
     setAnnotationFilter({
       ...annotationFilter,

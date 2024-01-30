@@ -10,6 +10,7 @@ const SortingComponent = ({ ascending, descending }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { setOrderingOrder, sortingOrder } = useContext(Context);
 
+  // get sort values
   const getSortValue = () => {
     if (sortingOrder === ascending) {
       return descending;
@@ -20,6 +21,7 @@ const SortingComponent = ({ ascending, descending }) => {
     }
   };
 
+  // handle sort filter values
   const handleSortingFilter = (value) => {
     setOrderingOrder(value);
     const params = Object.fromEntries([...searchParams]);

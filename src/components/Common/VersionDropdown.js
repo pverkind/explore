@@ -8,17 +8,18 @@ import {
 import { useContext } from "react";
 import { Context } from "../../App";
 
-
 export default function VersionDropdown() {
-  const { releaseCode, setReleaseCode, setReleaseCodeChanged } = useContext(Context);
+  const { releaseCode, setReleaseCode, setReleaseCodeChanged } =
+    useContext(Context);
 
+  // change release code from dropdown
   const handleChange = (event) => {
-    console.log("User changed the release code to "+ event.target.value);
+    console.log("User changed the release code to " + event.target.value);
     localStorage.setItem("release_code", JSON.stringify(event.target.value));
     setReleaseCodeChanged(true);
     setReleaseCode(event.target.value);
   };
-  
+
   return (
     <Tooltip title="Select the OpenITI release version" placement="top">
       <FormControl

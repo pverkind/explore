@@ -25,6 +25,7 @@ export default function LeftSidePanel() {
   } = useContext(Context);
   const [fullData, setFullData] = useState({});
 
+  // download metadata function
   const handleDownloadJsonClick = () => {
     const link = document.createElement("a");
     link.href = `data:text/json;charset=utf-8,${encodeURIComponent(
@@ -40,6 +41,7 @@ export default function LeftSidePanel() {
     link.remove();
   };
 
+  // drawer tab change function
   const handleChange = (event, newValue) => {
     setTabIndex(newValue);
   };

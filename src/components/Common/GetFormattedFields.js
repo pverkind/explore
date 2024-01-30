@@ -3,13 +3,14 @@ import { Box } from "@mui/material";
 const GetFormattedFields = ({ data, type }) => {
   //console.log(data);
   if (data === undefined) {
-    return []
+    return [];
   }
   // author.relation_type_code
   const filtered = data.filter((item) => {
     return item.relation_type_code === type;
   });
 
+  // return table title
   const getTitle = () => {
     if (type === "BORN") {
       return "was born in:";

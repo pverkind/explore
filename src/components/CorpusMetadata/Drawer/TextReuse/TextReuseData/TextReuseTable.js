@@ -19,14 +19,17 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
+  // set new page
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
 
+  // handle paginatino dropdown rows per page
   const handleRowsPerPageChange = (e) => {
     setRowsPerPage(e.target.value);
   };
 
+  // debounce function for search query
   function useDebounce(value, delay) {
     const [debouncedValue, setDebouncedValue] = useState(value);
 

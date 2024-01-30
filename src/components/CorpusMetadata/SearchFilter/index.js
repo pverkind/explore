@@ -22,10 +22,12 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
     useContext(Context);
   const [text, setText] = useState("");
 
+  // filter toggler
   const handleFilterPanel = () => {
     setFilterPanel(!showFilters);
   };
 
+  // change search query
   const handleSearch = (e) => {
     e.preventDefault();
     const params = Object.fromEntries([...searchParams]);
@@ -37,6 +39,7 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
     }
   };
 
+  // clear addvance search filter query
   const clearAllAdvanceSearchFilter = () => {
     setAdvanceSearch({
       max_tok_count: "",
@@ -59,6 +62,7 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
     setSearchParams(searchParams);
   };
 
+  // search query function
   const getSearchQuery = useCallback(() => {
     const delaySearch = setTimeout(() => {
       if (searchParams.get("search")) {

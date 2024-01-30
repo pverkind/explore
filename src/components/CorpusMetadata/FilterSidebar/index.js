@@ -18,6 +18,7 @@ const FilterSidebar = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // toggler for primary-secondary metadata
   const handlePrimaryTextToggle = () => {
     setAnalysisPriority(!analysisPriority);
     const params = Object.fromEntries([...searchParams]);

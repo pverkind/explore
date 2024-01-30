@@ -391,7 +391,7 @@ function App() {
               <Route path="" element={<CorpusMetadata isHome />} />
               <Route path="/:version" element={<CorpusMetadata isHome />} />
               <Route path="/metadata/" element={<CorpusMetadata />} />
-              <Route path="/metadata/:version" element={<CorpusMetadata />} />
+              <Route path="/metadata/:version/" element={<CorpusMetadata />} />
               <Route path="/insight" element={<Insight />} />
               <Route path="/visualise/" element={<Visualisation />} />
               <Route path="/visualise/:version" element={<Visualisation />} />
