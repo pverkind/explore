@@ -18,6 +18,7 @@ import SearchFilters from "./SearchFilter";
 import { Typography } from "@mui/material";
 import { Context } from "../../App";
 
+// make custom style for material ui component
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -78,6 +79,7 @@ const MetadataTable = ({ isHome }) => {
     setAdvanceSearch,
   } = useContext(Context);
 
+  // update orders
   const updateOrderingOrder = useCallback(() => {
     if (searchParams.has("ordering")) {
       setOrderingOrder(searchParams.get("ordering"));
@@ -114,6 +116,7 @@ const MetadataTable = ({ isHome }) => {
     updatePageRow();
   }, [updatePageRow]);
 
+  // function for reset filters
   const handleResetFilters = () => {
     setQuery("");
     setOrderingOrder("");
@@ -163,15 +166,6 @@ const MetadataTable = ({ isHome }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (!isHome) {
-      navigate(`/metadata/${releaseCode}/${location.search}`);
-    } else {
-      navigate(`/${releaseCode}/${location.search}`);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [releaseCode]);
 
   useEffect(() => {
     const isChecked = (value) => {
@@ -244,6 +238,14 @@ const MetadataTable = ({ isHome }) => {
     setTotal,
     advanceSearch,
   ]);
+  useEffect(() => {
+    if (!isHome) {
+      navigate(`/metadata/${releaseCode}/${location.search}`);
+    } else {
+      navigate(`/${releaseCode}/${location.search}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [releaseCode]);
 
   return (
     <>

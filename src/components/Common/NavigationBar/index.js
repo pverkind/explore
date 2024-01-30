@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -10,40 +10,9 @@ import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
 import { makeStyles } from "@mui/styles";
-//import AlertComponent from "../AlertComponent";
+import { Context } from "../../../App";
 
 export const REPO_NAME = "explore";
-
-const pages = [
-  {
-    label: "About",
-    link: "http://kitab-project.org/about/",
-  },
-  {
-    label: "Corpus and Data",
-    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/insight`,
-  },
-  {
-    label: "Methods",
-    link: "http://kitab-project.org/methods",
-  },
-  {
-    label: "Research",
-    link: "http://kitab-project.org/blogs",
-  },
-  {
-    label: "Arabic Pasts",
-    link: "http://kitab-project.org/research/events/arabic-pasts",
-  },
-  {
-    label: "OpenITI Corpus Metadata",
-    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/metadata`,
-  },
-  {
-    label: "Visualisation",
-    link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/visualise`,
-  },
-];
 
 const useStyles = makeStyles((theme) => ({
   responsiveBrand: {
@@ -57,16 +26,50 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Navigationbar = () => {
+  const { releaseCode } = useContext(Context);
   const classes = useStyles();
   const [anchorElNav, setAnchorElNav] = useState(null);
 
+  // nav menu toggler open
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
 
+  // nav menu toggler close
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
+
+  const pages = [
+    {
+      label: "About",
+      link: "http://kitab-project.org/about/",
+    },
+    {
+      label: "Corpus and Data",
+      link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/insight`,
+    },
+    {
+      label: "Methods",
+      link: "http://kitab-project.org/methods",
+    },
+    {
+      label: "Research",
+      link: "http://kitab-project.org/blogs",
+    },
+    {
+      label: "Arabic Pasts",
+      link: "http://kitab-project.org/research/events/arabic-pasts",
+    },
+    {
+      label: "OpenITI Corpus Metadata",
+      link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/metadata/${releaseCode}/`,
+    },
+    {
+      label: "Visualisation",
+      link: `${!REPO_NAME ? "" : `/${REPO_NAME}`}/#/visualise`,
+    },
+  ];
 
   return (
     <>
@@ -204,7 +207,6 @@ const Navigationbar = () => {
           </Toolbar>
         </Box>
       </AppBar>
-      {/*<AlertComponent />*/}
     </>
   );
 };

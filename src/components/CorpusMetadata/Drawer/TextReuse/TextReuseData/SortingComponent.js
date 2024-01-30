@@ -8,6 +8,7 @@ const SortingComponent = ({
   sortingOrder,
   setSortingOrder,
 }) => {
+  // handle short filter
   const handleSortingFilter = (e) => {
     e.preventDefault();
     if (sortingOrder === ascending) {

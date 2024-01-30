@@ -3,6 +3,7 @@ import React from "react";
 import SortingComponent from "./SortingButtons/SortingComponent";
 
 const TableHeader = ({ columns, classes }) => {
+  // get table cell width
   const getWidth = (value) => {
     if (value === "More") {
       return "9%";
@@ -23,6 +24,7 @@ const TableHeader = ({ columns, classes }) => {
     }
   };
 
+  // return dynamic components
   const returnComponent = (column) => {
     if (column === "Author Death Date ") {
       return (

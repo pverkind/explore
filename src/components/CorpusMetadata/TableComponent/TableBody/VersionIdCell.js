@@ -16,6 +16,7 @@ const VersionIdCell = ({ row, classes }) => {
   let versionUrl = row?.release_version?.url;
   let versionUri = versionUrl.split("/")[versionUrl.split("/").length - 1];
 
+  // get colors for annotation status
   const getColored = () => {
     if (row?.release_version?.annotation_status === "(not yet annotated)") {
       return "conic-gradient(grey 360deg, #d1d5db 0deg)";

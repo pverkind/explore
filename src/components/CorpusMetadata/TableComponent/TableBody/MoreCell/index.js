@@ -5,6 +5,7 @@ import GtihubActions from "./GithubActions";
 import { Context } from "../../../../../App";
 import { Typography } from "@mui/material";
 
+// download raw github file
 export function downloadGitHubRawFile(row) {
   const outputFilename = `${row?.version_uri}.txt`;
 
@@ -47,6 +48,7 @@ export function downloadGitHubRawFile(row) {
 const MoreCell = ({ classes, row }) => {
   const { checkedBooks, setCheckedBooks } = useContext(Context);
 
+  // mark metadata row
   const handleChecked = (value) => {
     const filter = checkedBooks.filter((item) => {
       return (

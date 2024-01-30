@@ -7,6 +7,7 @@ import CopyToClipboard from "../../../Common/CopyToClipboard";
 import { Typography } from "@mui/material";
 
 const VersionDetails = ({ fullData }) => {
+  // function for set color of the annotation status
   const getColored = (value) => {
     if (value === "(not yet annotated)") {
       return "conic-gradient(grey 360deg, #d1d5db 0deg)";
@@ -18,6 +19,8 @@ const VersionDetails = ({ fullData }) => {
       return "conic-gradient(green 360deg, #d1d5db 0deg)";
     }
   };
+
+  // organize table data
   const data = [
     {
       header: displayNamesVersion.version_id,

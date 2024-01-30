@@ -10,6 +10,7 @@ import SyncAltIcon from "@mui/icons-material/SyncAlt";
 const GtihubActions = ({ versionURI }) => {
   const [openDropdown, setOpenDropdown] = useState(false);
 
+  // github action icons data
   const data = [
     {
       title: "Change URI",

@@ -1,3 +1,5 @@
+// format data for details
+
 const displayNamesText = {
   id: "Id",
   text_uri: "Text URI",

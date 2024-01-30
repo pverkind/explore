@@ -6,6 +6,7 @@ import { Typography } from "@mui/material";
 export default function SingleSlider({ max, handler, label, value }) {
   const [value2, setValue2] = React.useState(value ? value : 0);
 
+  // set slider value
   const handleChange2 = (event, newValue) => {
     setValue2(newValue);
   };

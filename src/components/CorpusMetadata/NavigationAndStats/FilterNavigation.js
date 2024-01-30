@@ -8,6 +8,7 @@ const FilterNavigation = ({ showFilters }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [annotationStatus, setAnnotationStatus] = useState([]);
 
+  // reset search params from url
   const handleDeleteSearchParams = (value, field) => {
     if (value === "version") {
       if (searchParams.get("version") === "pri") {

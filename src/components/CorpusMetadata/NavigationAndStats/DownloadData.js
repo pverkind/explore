@@ -7,6 +7,7 @@ import { Context } from "../../../App";
 const DownloadData = ({ data, status }) => {
   const { checkedBooks } = useContext(Context);
 
+  // format metadata for download
   const specificData =
     checkedBooks.length !== 0
       ? checkedBooks
@@ -38,8 +39,12 @@ const DownloadData = ({ data, status }) => {
         });
 
   return (
-    <Tooltip 
-      title={(checkedBooks.length > 0) ? "Download selected metadata in csv format" : "Download metadata on this page in csv format"}
+    <Tooltip
+      title={
+        checkedBooks.length > 0
+          ? "Download selected metadata in csv format"
+          : "Download metadata on this page in csv format"
+      }
       placement="top"
     >
       <span>

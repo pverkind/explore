@@ -6,7 +6,10 @@ import { getMetadataObject } from "../../../../../functions/getMetadataObject";
 import { setPairwiseVizData } from "../../../../../functions/setVisualizationData";
 import { setInitialValues } from "../../../../../functions/setInitialValues";
 import { getVersionMeta } from "../../../../../functions/getVersionMeta";
-import { lightSrtFolders, srtFoldersGitHub } from "../../../../../assets/srtFolders";
+import {
+  lightSrtFolders,
+  srtFoldersGitHub,
+} from "../../../../../assets/srtFolders";
 import TextReuseTable from "./TextReuseTable";
 
 // Text Reuse Data tab in the drawer:
@@ -24,8 +27,10 @@ const TextReuseData = ({ fullData, query }) => {
     setIsFileUploaded,
     setBooksAlignment,
     setIsError,
-    setUrl
+    setUrl,
   } = useContext(Context);
+
+  // redirect to chart page
   const handleRedirectedToChart = async (value) => {
     setInitialValues({
       dataLoading,
@@ -37,9 +42,13 @@ const TextReuseData = ({ fullData, query }) => {
       setBooks,
     });
 
+    // generate csv file name
     const csvFileName =
       value.tsv_url.split("/")[value.tsv_url.split("/").length - 1];
+
+    // get book names
     const book_names = csvFileName.split("_");
+
     if (book_names[0] && book_names[1]) {
       // download pairwise text reuse data filename:
       const versionMeta = await getVersionMeta(releaseCode, book_names);
@@ -74,7 +83,7 @@ const TextReuseData = ({ fullData, query }) => {
         setIsFileUploaded,
         navigate,
         csvFileName,
-        setUrl
+        setUrl,
       });
     } else {
       setDataLoading({ ...dataLoading, uploading: false });

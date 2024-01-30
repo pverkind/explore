@@ -4,6 +4,7 @@ import React, { useState } from "react";
 const CopyToClipboard = ({ data }) => {
   const [isCopied, setIsCopied] = useState(false);
 
+  // function for copy a id
   const handleCopy = (e) => {
     e.preventDefault();
     if (!isCopied) {
