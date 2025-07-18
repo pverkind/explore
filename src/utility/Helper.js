@@ -16,9 +16,9 @@ const pad = (n, width, z) => {
 function getHighestValueInArrayOfObjects(arr, key){
   let highest = -Infinity;
   for (let i=0; i<arr.length; i++){
-    let obj = arr[i];
-    if (obj[key] > highest) {
-      highest = obj[key];
+    let n = parseInt(arr[i][key]);
+    if (n > highest) {
+      highest = n;
     }
   }
   return highest;
