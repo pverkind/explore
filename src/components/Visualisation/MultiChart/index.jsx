@@ -81,13 +81,10 @@ const MultiVisual = (props) => {
   console.log(bookStats);*/
   
   const [dateRange, setDateRange] = useState([0, 1500]);
-  //let maxbc = Math.max(...bookStats.map((d) => d.ch_match));
   let maxbc = getHighestValueInArrayOfObjects(bookStats, "ch_match");
   const [bookCharRange, setBookCharRange] = useState([1, maxbc]);
-  //let maxalign = Math.max(...bookStats.map((d) => d.alignments));
   let maxalign = getHighestValueInArrayOfObjects(bookStats, "alignments");
   const [bookAlignRange, setBookAlignRange] = useState([1, maxalign]);
-  //let maxmschars = Math.max(...msData.map((d) => d.ch_match));
   let maxmschars = getHighestValueInArrayOfObjects(msData, "ch_match");
   const [msCharsRange, setMsCharsRange] = useState([1, maxmschars]);
 
