@@ -7,6 +7,23 @@ const pad = (n, width, z) => {
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 };
 
+/** Get the highest value for a key in an array of objects
+ * 
+ * @param {Array} arr 
+ * @param {String} key 
+ * @returns Integer
+ */
+function getHighestValueInArrayOfObjects(arr, key){
+  let highest = -Infinity;
+  for (let i=0; i<arr.length; i++){
+    let obj = arr[i];
+    if (obj[key] > highest) {
+      highest = obj[key];
+    }
+  }
+  return highest;
+}
+
 /*
 function to  takes author death date as the parameter to return a padded repo URL
 */
@@ -245,6 +262,7 @@ function bisectLeft(array, value) {
 }
 
 export {
+  getHighestValueInArrayOfObjects,
   pad,
   renameKeys,
   deleteKey,
