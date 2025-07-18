@@ -68,6 +68,11 @@ code {
   stroke: black;
 }
 
+.dashed {
+  stroke-width: 2;
+  stroke-dasharray: 5,5;
+}
+
 .dotted-bar-lines {
   stroke-dasharray: 3 6;
   stroke: red;
