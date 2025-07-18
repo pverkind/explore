@@ -148,58 +148,92 @@ const VisualisationPage = () => {
       setBooks,
     });
     setDataLoading({ ...dataLoading, uploading: true });
+    //console.log("UPLOAD:");
+    //console.log(upload); // upload is a Filelist object
+    if (upload.length === 1 ) {
+      // only 1 file uploaded => this should be a pairwise visualisation!
+      setIsPairwiseViz(true);
 
-    const csvFileName = upload?.name;
-    const book_names = csvFileName.split("_");
+      upload = upload[0]; 
+      const CSVFile = upload;
+      const csvFileName = upload?.name;
+      const book_names = csvFileName.split("_");
 
-    setTimeout(async () => {
-      let book1, book2;
-      if (book_names.length === 2) {
+      setTimeout(async () => {
+        // try to get the metadata of both books from the API (using the filename):
         const bookMeta = await getVersionMeta(releaseCode, book_names);
+        let book1, book2;
+        if (book_names.length === 2) {
+          // use both filename parts as identifiers of the books:
+          book1 = bookMeta.book1;
+          book2 = bookMeta.book2;
+
+          // if a book was not found in the metadata api, create an object with default values:
+          if (book1.version_code === undefined){
+            console.log("No metadata found for book 1");
+            book1 = buildPlaceholderMeta(book_names[0]);
+          };
+          if (book2.version_code === undefined){
+            console.log("No metadata found for book 2");
+            book2 = buildPlaceholderMeta(book_names[1].replace(".csv", ""));
+          };
+        } else {
+          // load this data in the pairwise visualisation with default book names:
+          book1 = buildPlaceholderMeta(book_names[0].replace(".csv", "")+"_book1");
+          book2 = buildPlaceholderMeta(book_names[0].replace(".csv", "")+"_book2");
+        }
+
+        setPairwiseVizData({
+          book1,
+          book2,
+          CSVFile,
+          dataLoading,
+          setDataLoading,
+          setMetaData,
+          releaseCode,
+          getMetadataObject,
+          setChartData,
+          setIsError,
+          setIsFileUploaded,
+          navigate,
+          csvFileName,
+          setUrl,
+        });
+      /*} else {
+
+          setDataLoading({ ...dataLoading, uploading: false });
+          setIsError(true);
+        }*/
+      }, 1000);
+
+    } else {
+      console.log("UPLOADING ONE-TO-MANY DATA?");
+      /*if (book_names[1].replace(".csv", "") == "all") {
+        // load this data in the one-to-many visualisation: 
         book1 = bookMeta.book1;
-        console.log(book1.version_code);
-        book2 = bookMeta.book2;
+        // if the book was not found in the metadata api, create an object with default values:
         if (book1.version_code === undefined){
           console.log("No metadata found for book 1");
           book1 = buildPlaceholderMeta(book_names[0]);
         };
-        if (book2.version_code === undefined){
-          console.log("No metadata found for book 2");
-          book2 = buildPlaceholderMeta(book_names[1]);
-        };
-      } else {
-        book1 = buildPlaceholderMeta(book_names[0]+"_book1");
-        book2 = buildPlaceholderMeta(book_names[0]+"_book2");
-      }
-      console.log("BOOK 1 metadata:");
-      console.log(book1);
-      console.log("BOOK 2 metadata:");
-      console.log(book2);
 
-      const CSVFile = upload;
-
-      setPairwiseVizData({
-        book1,
-        book2,
-        CSVFile,
-        dataLoading,
-        setDataLoading,
-        setMetaData,
-        releaseCode,
-        getMetadataObject,
-        setChartData,
-        setIsError,
-        setIsFileUploaded,
-        navigate,
-        csvFileName,
-        setUrl,
-      });
-    /*} else {
-
-        setDataLoading({ ...dataLoading, uploading: false });
-        setIsError(true);
+        setMultiVizData({
+          book1,
+          CSVFile,
+          statsFile,
+          dataLoading,
+          setDataLoading,
+          setMetaData,
+          releaseCode,
+          getMetadataObject,
+          setChartData,
+          setIsError,
+          setIsFileUploaded,
+          setUrl,
+        });
       }*/
-    }, 1000);
+    }
+    
   };
 
   const [isLoading, setIsLoading] = useState(true);
