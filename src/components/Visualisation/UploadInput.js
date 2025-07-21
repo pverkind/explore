@@ -73,7 +73,7 @@ const UploadInput = ({ item, handleUpload }) => {
      <input
         type="file"
         id={item.title}
-        sx={{ display: "none" }}
+        style={{ display: "none" }}
         multiple
         onChange={(e) => handleUpload(e.target.files)}
       />
