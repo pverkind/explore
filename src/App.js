@@ -134,6 +134,8 @@ function App() {
 
   const bookSectionRef = useRef();
   const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [showTickSizeInput, setShowTickSizeInput] = useState(false);
+  const [tickFontSize, setTickFontSize] = useState(12);
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipTimeLoading, setFlipTimeLoading] = useState(false);
   const focusMilestone1 = useRef();
@@ -312,6 +314,10 @@ function App() {
         dataLoading,
         setDataLoading,
         bookSectionRef,
+        showTickSizeInput, 
+        setShowTickSizeInput,
+        tickFontSize, 
+        setTickFontSize,
         isFlipped,
         setIsFlipped,
         flipTimeLoading,

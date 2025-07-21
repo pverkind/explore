@@ -40,6 +40,10 @@ code {
   stroke-dasharray: 5, 5;
 }
 
+.tick text {
+  font-size: 12px;
+}
+
 .domain {
   stroke-width: 3;
   stroke: #ffcc66;
