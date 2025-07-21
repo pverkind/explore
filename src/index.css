@@ -27,6 +27,11 @@ div.vizTooltip {
   border-radius: 8px;
   pointer-events: none;
   opacity: 1;
+  max-width: 250px;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 code {

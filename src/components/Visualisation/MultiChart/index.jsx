@@ -217,6 +217,7 @@ const MultiVisual = (props) => {
         id="multiVis"
         sx={{
           px: {
+            position: "relative",
             xs: "0px",
             sm: "30px",
           },
