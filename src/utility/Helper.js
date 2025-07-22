@@ -8,6 +8,15 @@ const pad = (n, width, z) => {
 };
 
 /**
+ * Remove the page parameter from a querystring
+ * @param {Object} searchParams querystring object
+ * @returns Object
+ */
+const cleanSearchPagination = (searchParams) => {
+  return Object.fromEntries([...searchParams].filter(([key]) => key !== "page"));
+}
+
+/**
  * Calculate the x and y coordinates of a tooltip
  * @param {Event} event The Event object that contains information on where the mouse hovers
  * @param {Element} tooltipDiv The tooltip element itself
@@ -297,6 +306,7 @@ function bisectLeft(array, value) {
 export {
   getHighestValueInArrayOfObjects,
   calculateTooltipPos,
+  cleanSearchPagination,
   pad,
   renameKeys,
   deleteKey,
