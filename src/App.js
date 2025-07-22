@@ -136,6 +136,8 @@ function App() {
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [showTickSizeInput, setShowTickSizeInput] = useState(false);
   const [tickFontSize, setTickFontSize] = useState(12);
+  const [outputImageWidth, setOutputImageWidth] = useState(120);
+  const [dpi, setDpi] = useState(300);
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipTimeLoading, setFlipTimeLoading] = useState(false);
   const focusMilestone1 = useRef();
@@ -169,6 +171,8 @@ function App() {
   const [showWikiEdDiff, setWikiEdDiff] = useState(false);
   const [isError, setIsError] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false);
+  const [includeURL, setIncludeURL] = useState(true);
   const [url, setUrl] = useState("");
   const [highlightMode, setHighlightMode] = useState("diff");
   const [nSharedChars, setNSharedChars] = useState(50);
@@ -256,7 +260,8 @@ function App() {
 
     // save the png:
     saveSvgAsPng.saveSvgAsPng(newSvg, downloadFileName, {
-      scale: 3, // 300 %
+      // TODO: set the scale based on the output size and dpi values:
+      scale: 3, // 300 % 
       backgroundColor: "white",
     });
   };
@@ -319,6 +324,10 @@ function App() {
         setShowTickSizeInput,
         tickFontSize, 
         setTickFontSize,
+        outputImageWidth,
+        setOutputImageWidth,
+        dpi, 
+        setDpi,
         isFlipped,
         setIsFlipped,
         flipTimeLoading,
@@ -346,6 +355,10 @@ function App() {
         setIsError,
         showOptions,
         setShowOptions,
+        showDownloadOptions, 
+        setShowDownloadOptions,
+        includeURL, 
+        setIncludeURL,
         url,
         setUrl,
         highlightMode,
