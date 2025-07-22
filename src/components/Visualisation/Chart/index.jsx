@@ -857,8 +857,8 @@ const Visual = (props) => {
           isPairwiseViz={props.isPairwiseViz}
           downloadFileName={
             isFlipped
-              ? `${metaData?.book2?.versionCode}_${metaData?.book1?.versionCode}.png`
-              : `${metaData?.book1?.versionCode}_${metaData?.book2?.versionCode}.png`
+              ? `KITAB_explore_${releaseCode}_${metaData?.book2?.versionCode}_${metaData?.book1?.versionCode}.png`
+              : `KITAB_explore_${releaseCode}_${metaData?.book1?.versionCode}_${metaData?.book2?.versionCode}.png`
           }
         />
       </SectionHeaderLayout>
