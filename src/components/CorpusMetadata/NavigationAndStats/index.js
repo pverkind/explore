@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@mui/material";
 import { useState } from "react";
-import { lightSrtFolders, srtFoldersGitHub } from "../../../assets/srtFolders";
+import { lightSrtFolders, srtFoldersGitHub, srtFolders } from "../../../assets/srtFolders";
 
 import { setInitialValues } from "../../../functions/setInitialValues";
 import { getMetadataObject } from "../../../functions/getMetadataObject";
@@ -44,6 +44,37 @@ const NavigationAndStats = () => {
   } = useContext(Context);
   const navigate = useNavigate();
   const [displaySelected, setDisplaySelected] = useState(false);
+
+  // Download the text reuse data from the server - getting the full data file:
+  const downloadTextReuseData = async () => {
+    // prepare the metadata for both book versions:
+    const book1 = checkedBooks[0];
+    const book2 = checkedBooks[1];
+
+    // build the link to the text reuse pair:
+    const book1Filename = book1?.release_version?.url.split("/").slice(-1)[0];
+    const book1Code = book1Filename.split(".").slice(2).join(".");
+    const book2Filename = book2?.release_version?.url.split("/").slice(-1)[0];
+    const book2Code = book2Filename.split(".").slice(2).join(".");
+    let srtFolder = srtFolders[releaseCode];
+    const csvFileName = `${book1Code}_${book2Code}.csv`;
+    let csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
+    try {
+    const response = await fetch(csvUrl, { method: 'HEAD' });
+    if (response.ok) {
+      const link = document.createElement("a");
+      link.href = csvUrl;
+      link.download = csvFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert("No pairwise file for selected pair.");
+    }
+  } catch (error) {
+    alert("Download failed due to network error.");
+  }
+  }
 
   // Load the book visualisation from the checked versions in metadata table:
   const loadChartFromSelected = async () => {
@@ -215,6 +246,7 @@ const NavigationAndStats = () => {
               Select a second book to visualise pairwise text reuse
             </Typography>
           ) : (
+            <>
             <Box>
               <Tooltip
                 title={
@@ -244,6 +276,38 @@ const NavigationAndStats = () => {
                 </span>
               </Tooltip>
             </Box>
+
+            <Box>
+              <Tooltip
+                title={
+                  checkedBooks.length < 3
+                    ? "Download Pairwise File"
+                    : "Select 2 books to download a file with pairwise text reuse"
+                }
+                placement="top"
+              >
+                <span>
+                  <IconButton
+                    size="large"
+                    variant="text"
+                    sx={{ fontSize: "15px" }}
+                    disabled={checkedBooks.length < 3 ? false : true}
+                    onClick={() => downloadTextReuseData()}
+                  >
+                    {checkedBooks.length < 3 ? (
+                      <i
+                        className="fa-solid fa-download"
+                        style={{ color: "green" }}
+                      ></i>
+                    ) : (
+                      <i className="fa-solid fa-download"></i>
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Box>
+            </>
+            
           )}
 
           {checkedNotification ? (
