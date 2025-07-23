@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import TextReuseData from "./TextReuseData/index.js";
 import { TextField } from "@mui/material";
 import { srtFolders, oneToAllFolders } from "../../../../assets/srtFolders";
-import AlertComponent from "../../../Common/AlertComponent.js";
 
 const DownloadSrt = ({ fullData }) => {
   const [query, setQuery] = useState("");
@@ -35,7 +34,6 @@ const DownloadSrt = ({ fullData }) => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <AlertComponent forDrawer />
       
       <Box>
         {data.length !== 0 &&

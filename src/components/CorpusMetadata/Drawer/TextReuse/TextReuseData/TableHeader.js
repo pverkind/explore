@@ -23,19 +23,18 @@ const TableHeader = ({ sortingOrder, setSortingOrder }) => {
       <Box
         display={"flex"}
         alignItems={"center"}
-        width={"30%"}
+        width={"80%"}
         padding={"0px 15px"}
       >
-        Author
+        Work
+        <SortingComponent
+          ascending={"book"}
+          descending={"-book"}
+          sortingOrder={sortingOrder}
+          setSortingOrder={setSortingOrder}
+        />
       </Box>
-      <Box
-        display={"flex"}
-        alignItems={"center"}
-        width={"50%"}
-        padding={"0px 15px"}
-      >
-        Title
-      </Box>
+
       <Box
         display={"flex"}
         alignItems={"center"}

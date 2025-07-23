@@ -43,8 +43,7 @@ const TextReuseData = ({ fullData, query }) => {
     });
 
     // generate csv file name
-    const csvFileName =
-      value.tsv_url.split("/")[value.tsv_url.split("/").length - 1];
+    const csvFileName = value.tsv_url.split("/").pop();
 
     // get book names
     const book_names = csvFileName.split("_");
