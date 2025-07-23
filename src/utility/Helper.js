@@ -1,11 +1,47 @@
+import { srtFolders, lightSrtFolders} from "../assets/srtFolders"
 import { config } from "../config";
 const { GITHUB_BASE_URL, GITHUB_BASE_RAW_URL } = config;
+
+
+
 
 const pad = (n, width, z) => {
   z = z || "0";
   n = n + "";
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 };
+
+const getVersionIDfromURI = (versionURI, includeExt=true) => {
+  /* eslint-disable no-unused-vars */
+  const [author, book, ...version] = versionURI.split(".");
+  /* eslint-enable no-unused-vars */
+  return version.join(".");
+}
+
+const getVersionIDfromURL = (versionURL, includeExt=true) => {
+  const versionURI = versionURL.split("/").pop();
+  return getVersionIDfromURI(versionURI, includeExt);
+}
+
+/** 
+   * build the URL to the pairwise CSV file on the KITAB webserver:
+   * based on the metadata for both books:
+   * 
+   * @param {String} releaseCode OpenITI release version code
+   * @param {Object} b1Data full metadata for book 1
+   * @param {Object} b2Data full metadata for book 2
+   * @param {Boolean} light Download the light or full text reuse data csv
+   * 
+   * @returns String (URL of the pairwise CSV file)
+  */
+  const buildPairwiseCsvURL = async (releaseCode, b1Data, b2Data, light=false) => {
+    // get the IDs (incl. extension) for both books:
+    const b1ID = getVersionIDfromURL(b1Data.release_version.url, true);
+    const b2ID = getVersionIDfromURL(b2Data.release_version.url, true);
+    const baseURL = light ? lightSrtFolders[releaseCode] : srtFolders[releaseCode];
+    // build the URL:
+    return `${baseURL}/${b1ID}/${b1ID}_${b2ID}.csv`;
+  }
 
 /**
  * Remove the page parameter from a querystring
@@ -319,5 +355,8 @@ export {
   cleanImech,
   parseImech,
   cleanBeforeDiff,
-  bisectLeft
+  bisectLeft, 
+  getVersionIDfromURI,
+  getVersionIDfromURL,
+  buildPairwiseCsvURL
 };
