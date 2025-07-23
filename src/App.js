@@ -1,14 +1,15 @@
-import "./App.css";
+import { createContext, useRef, useState } from "react";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { green, red } from "@mui/material/colors";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import * as saveSvgAsPng from "save-svg-as-png";
+
+import "./App.css";
 import Insight from "./pages/Insight";
 import Visualisation from "./pages/Visualisation";
 import CorpusMetadata from "./pages/CorpusMetadata";
-import { createContext, useRef, useState } from "react";
 import DiffViewer from "./pages/DiffViewer";
 import LeftSidePanel from "./components/CorpusMetadata/Drawer";
-import * as saveSvgAsPng from "save-svg-as-png";
 
 const theme = createTheme({
   palette: {

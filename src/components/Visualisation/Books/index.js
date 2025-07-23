@@ -1,13 +1,13 @@
 import { Box, Button } from "@mui/material";
-import React, { useContext, useState, useEffect } from "react";
-import { Context } from "../../../App";
+import { useContext, useState, useEffect } from "react";
 import DiffGrid from "./DiffGrid";
+import WikiEdDiffModal from "../BooksAlignment/WikiEdDiffModal";
 import CircularInterminate from "../CircularIndeterminate";
 import SectionHeaderLayout from "../SectionHeader/SectionHeaderLayout";
-import WikiEdDiffModal from "../BooksAlignment/WikiEdDiffModal";
+import BookAlignmentHeader from "../SectionHeader/BookAlignmentHeader";
 import { kitabDiff } from "../../../assets/js/kitabDiff";
 import { cleanBeforeDiff } from "../../../utility/Helper";
-import BookAlignmentHeader from "../SectionHeader/BookAlignmentHeader";
+import { Context } from "../../../App";
 
 const Books = ({ chartSpecificBar }) => {
   const {
@@ -44,7 +44,7 @@ const Books = ({ chartSpecificBar }) => {
   // variables and functions related to the modal and resizer:
   // (temporarily disabled)
   /*
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const [expandViewData, setExpandViewData] = useState({
     data: {},
     bookNumber: null,

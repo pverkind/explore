@@ -1,14 +1,14 @@
+import { useContext, useState } from "react";
 import { Box } from "@mui/material";
-import React, { useContext, useState } from "react";
-import { Context } from "../../../App";
 import * as d3 from "d3";
-import SectionHeaderLayout from "../SectionHeader/SectionHeaderLayout";
-import VisualizationHeader from "../SectionHeader/VisualizationHeader";
 import ScatterPlot from "./ScatterPlot";
 import BottomBar from "./BottomBar";
 import SideBar from "./SideBar";
 import MultiFilter from "./MultiFilter";
+import SectionHeaderLayout from "../SectionHeader/SectionHeaderLayout";
+import VisualizationHeader from "../SectionHeader/VisualizationHeader";
 import { getHighestValueInArrayOfObjects } from "../../../utility/Helper";
+import { Context } from "../../../App";
 
 
 const MultiVisual = (props) => {

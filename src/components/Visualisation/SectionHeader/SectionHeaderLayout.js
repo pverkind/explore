@@ -1,9 +1,8 @@
+import { useContext } from "react";
 import { Box, Typography } from "@mui/material";
-import React from "react";
 import ToggleButton from "./ToggleButton";
 import BAExtra from "./BookAlignmentHeader/BAExtra";
 import DownloadPanel from "./VisualizationHeader/DownloadPanel";
-import { useContext } from "react";
 import { Context } from "../../../App";
 
 const SectionHeaderLayout = ({ item, children, toggle, setToggle }) => {

@@ -1,14 +1,14 @@
 import { Box, Typography } from "@mui/material";
-import React, { useContext, useEffect, useState } from "react";
-import { Context } from "../../../App";
-import * as d3 from "d3";
+import { useContext, useEffect, useState } from "react";
+import Section from "../Metadata/Section";
 import MSToggler from "../SectionHeader/MSToggler";
 import SectionHeaderLayout from "../SectionHeader/SectionHeaderLayout";
 import VisualizationHeader from "../SectionHeader/VisualizationHeader";
+import { Context } from "../../../App";
 import { extractAlignment } from "../../../functions/alignmentFunctions";
 import { getMilestoneText } from "../../../functions/getMilestoneText";
-import Section from "../Metadata/Section";
 import { getHighestValueInArrayOfObjects } from "../../../utility/Helper";
+import * as d3 from "d3";
 
 
 const Visual = (props) => {

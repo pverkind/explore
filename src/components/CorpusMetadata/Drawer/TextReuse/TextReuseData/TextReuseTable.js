@@ -2,17 +2,16 @@ import { Typography } from "@mui/material";
 import { Box } from "@mui/material";
 import { Tooltip } from "@mui/material";
 import { IconButton } from "@mui/material";
-import React, { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import TableHeader from "./TableHeader";
-import { useState } from "react";
-import { useEffect } from "react";
 import { CircularProgress } from "@mui/material";
 // import { getAllPairwiseData } from "../../../../../services/CorpusMetaData";
 import { getVersionMetadataById } from "../../../../../services/CorpusMetaData";
 import {  getOneBookReuseStats } from "../../../../../services/TextReuseData";
-import Papa from "papaparse";
 import { Context } from "../../../../../App";
 import { buildPairwiseCsvURL } from "../../../../../utility/Helper";
+import Papa from "papaparse";
+
 
 const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => { 
   const { dataLoading } = useContext(Context);
