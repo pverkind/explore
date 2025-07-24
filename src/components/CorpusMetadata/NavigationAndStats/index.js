@@ -10,12 +10,14 @@ import {
 } from "../../../services/TextReuseData";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { lightSrtFolders, srtFoldersGitHub, srtFolders } from "../../../assets/srtFolders";
+import { buildPairwiseCsvURL } from "../../../utility/Helper"
 
 import { setInitialValues } from "../../../functions/setInitialValues";
 import { getMetadataObject } from "../../../functions/getMetadataObject";
 import { setPairwiseVizData } from "../../../functions/setVisualizationData";
+// import { csv } from "d3";
 
 const NavigationAndStats = () => {
   const {
@@ -45,36 +47,97 @@ const NavigationAndStats = () => {
   const navigate = useNavigate();
   const [displaySelected, setDisplaySelected] = useState(false);
 
-  // Download the text reuse data from the server - getting the full data file:
-  const downloadTextReuseData = async () => {
-    // prepare the metadata for both book versions:
-    const book1 = checkedBooks[0];
-    const book2 = checkedBooks[1];
+  // Default the URLs to null - if null, no download or visualisation will be possible (and we can show a message):
+  const [pairwiseLiteUrl, setPairwiseLiteUrl] = useState(null);
+  const [pairwiseUrl, setPairwiseUrl] = useState(null);
+  const [pairwiseFileName, setPairwiseFileName] = useState(null);
 
-    // build the link to the text reuse pair:
-    const book1Filename = book1?.release_version?.url.split("/").slice(-1)[0];
-    const book1Code = book1Filename.split(".").slice(2).join(".");
-    const book2Filename = book2?.release_version?.url.split("/").slice(-1)[0];
-    const book2Code = book2Filename.split(".").slice(2).join(".");
-    let srtFolder = srtFolders[releaseCode];
-    const csvFileName = `${book1Code}_${book2Code}.csv`;
-    let csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
-    try {
-    const response = await fetch(csvUrl, { method: 'HEAD' });
-    if (response.ok) {
+  // Check if relevant parts have been loaded before we try to build the URLs and check them
+  // If the lite url is 
+  const booksReady =
+    checkedBooks[0]?.release_version?.url &&
+    checkedBooks[1]?.release_version?.url &&
+    releaseCode &&
+    srtFolders[releaseCode];
+
+  useEffect(() => {
+    if (!booksReady) return;
+    const checkSelectedUrls = async () => {
+      console.log(checkedBooks);
+      if (checkedBooks.length !== 2) {
+        // If we have not selected two books, then set these pairwise parameters to null
+        setPairwiseLiteUrl(null);
+        setPairwiseUrl(null);
+        setPairwiseFileName(null);
+        return;
+        
+        }
+      else {    
+      
+        const book1 = checkedBooks[0];
+        const book2 = checkedBooks[1];
+        const book1Filename = book1?.release_version?.url.split("/").slice(-1)[0];
+        const book1Code = book1Filename.split(".").slice(2).join(".");
+        const book2Filename = book2?.release_version?.url.split("/").slice(-1)[0];
+        const book2Code = book2Filename.split(".").slice(2).join(".");
+
+      // Create URLs for the selected books - if URL returns a response, then we set the variable
+      const LiteUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, true);
+      const fullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
+      const csvFileName = `${book1Code}_${book2Code}.csv`;
+      setPairwiseFileName(csvFileName);
+
+      // Check the URLs - if they are valid then set the state variables
+      // If the URL is not valid, then set the state variable to null
+      try {
+        const responseLite = await fetch(LiteUrl, { method: 'HEAD' });
+        if (responseLite.ok) {
+          setPairwiseLiteUrl(LiteUrl);
+          } else {
+            setPairwiseLiteUrl(null);
+          }
+        } catch (error) {
+              
+            const srtFolder = srtFoldersGitHub[releaseCode];
+            const csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
+            const responseGitHub = await fetch(csvUrl, { method: 'HEAD' });
+            if (responseGitHub.ok) {
+              setPairwiseLiteUrl(csvUrl);
+            } else {
+              setPairwiseLiteUrl(null);
+              console.log("No URL found for pairwise Lite data");
+          }
+          };
+      try {
+        const responseFull = await fetch(fullUrl, { method: 'HEAD' });
+        if (responseFull.ok) {
+          setPairwiseUrl(fullUrl);
+          } else {
+            setPairwiseUrl(null);
+          }
+        } catch (error) {
+          console.log("No URL found for pairwise Full data");
+          setPairwiseUrl(null);
+        }
+        }
+      };
+    checkSelectedUrls();
+    }, [checkedBooks, releaseCode, booksReady, pairwiseFileName, pairwiseUrl, pairwiseLiteUrl]);
+
+  // Download the text reuse data from the server - getting the full data file:
+  const downloadTextReuseData = async (downloadUrl) => {
+
+    if (downloadUrl !== null) {
+
       const link = document.createElement("a");
-      link.href = csvUrl;
-      link.download = csvFileName;
+      link.href = downloadUrl;
+      link.download = pairwiseFileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } else {
-      alert("No pairwise file for selected pair.");
-    }
-  } catch (error) {
-    alert("Download failed due to network error.");
+    } 
   }
-  }
+  
 
   // Load the book visualisation from the checked versions in metadata table:
   const loadChartFromSelected = async () => {
@@ -104,8 +167,10 @@ const NavigationAndStats = () => {
     const csvFileName = `${book1Code}_${book2Code}.csv`;
     let csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
 
+    console.log("PairwiseLitUrl: ", pairwiseLiteUrl);
+
     // Download the pairwise text reuse data from the KITAB webserver:
-    let CSVFile = await downloadCsvData(csvUrl);
+    let CSVFile = await downloadCsvData(pairwiseLiteUrl);
     setLoadedCsvFile(CSVFile);
 
     // if this fails: try to download it from GitHub:
@@ -245,6 +310,10 @@ const NavigationAndStats = () => {
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               Select a second book to visualise pairwise text reuse
             </Typography>
+          ) : checkedBooks.length < 3 && pairwiseLiteUrl == null ? (
+            <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
+              No text reuse data available for selected books
+            </Typography>
           ) : (
             <>
             <Box>
@@ -280,8 +349,9 @@ const NavigationAndStats = () => {
             <Box>
               <Tooltip
                 title={
-                  checkedBooks.length < 3
-                    ? "Download Pairwise File"
+                  checkedBooks.length < 3 ? pairwiseUrl === null ?
+                    "Pairwise File not available for selected books"
+                    : "Download Pairwise File in CSV format"
                     : "Select 2 books to download a file with pairwise text reuse"
                 }
                 placement="top"
@@ -292,21 +362,51 @@ const NavigationAndStats = () => {
                     variant="text"
                     sx={{ fontSize: "15px" }}
                     disabled={checkedBooks.length < 3 ? false : true}
-                    onClick={() => downloadTextReuseData()}
+                    onClick={() => downloadTextReuseData(pairwiseUrl)}
                   >
-                    {checkedBooks.length < 3 ? (
+                    {checkedBooks.length < 3 && pairwiseUrl !== null ? (
                       <i
-                        className="fa-solid fa-download"
+                        className="fa-solid fa-file-csv"
                         style={{ color: "green" }}
                       ></i>
                     ) : (
-                      <i className="fa-solid fa-download"></i>
+                      <i className="fa-solid fa-file-csv"></i>
                     )}
                   </IconButton>
                 </span>
               </Tooltip>
             </Box>
-            </>
+            <Box>
+              <Tooltip
+                title={
+                  checkedBooks.length < 3 ? pairwiseLiteUrl === null ?
+                    "Lite Pairwise File not available for selected books"
+                    : "Download Lite Pairwise File in CSV format"
+                    : "Select 2 books to download a file with pairwise text reuse"
+                }
+                placement="top"
+              >
+                <span>
+                  <IconButton
+                    size="large"
+                    variant="text"
+                    sx={{ fontSize: "15px" }}
+                    disabled={checkedBooks.length < 3 ? false : true}
+                    onClick={() => downloadTextReuseData(pairwiseLiteUrl)}
+                  >
+                    {checkedBooks.length < 3 && pairwiseLiteUrl !== null ? (
+                      <i
+                        className="fa-solid fa-file-lines"
+                        style={{ color: "green" }}
+                      ></i>
+                    ) : (
+                      <i className="fa-solid fa-file-lines"></i>
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Box>
+          </>
             
           )}
 
@@ -369,7 +469,7 @@ const NavigationAndStats = () => {
       {displaySelected && (
         <Box mb="15px">
           {checkedBooks.map((item, i) => (
-            <Box display="flex" alignItems="center">
+            <Box key={item.id || i} display="flex" alignItems="center">
               <Checkbox
                 sx={{ width: "30px", height: "30px" }}
                 size="small"
