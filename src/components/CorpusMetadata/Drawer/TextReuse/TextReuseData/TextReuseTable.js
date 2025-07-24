@@ -26,6 +26,9 @@ const TextReuseTable = ({ b1Metadata, normalizedQuery, handleRedirectToChart, b1
     // start the spinner
     setIsLoading(true);
 
+    // make sure that the component is still mounted by the time the async function returns:
+    const isMounted = true;
+
     // don't fetch the data if the book1 metadata is not yet loaded
     // (and we thus don't know yet which book1 to download stats data for)
     if (!b1Metadata || !b1Metadata.version_uri) return;
@@ -47,12 +50,14 @@ const TextReuseTable = ({ b1Metadata, normalizedQuery, handleRedirectToChart, b1
         JSON.parse(releaseCode),
         versionID
       );
+      if (!isMounted) return // don't update state if unmounted
       // parse the statsFile csv:
       Papa.parse(statsFile, {
         header: true,
         dynamicTyping: true, // should convert numeric fields to integers
         skipEmptyLines: true,
         complete: (result) => {
+          if (!isMounted) return // don't update state if unmounted
           setTotal(result.data.length);
           // add a lowercase version of the book URI (to make filtering easier down the line)
           // and remove the ch_match key, which is not used here.
@@ -71,8 +76,12 @@ const TextReuseTable = ({ b1Metadata, normalizedQuery, handleRedirectToChart, b1
       setIsLoading(false);
       setIsError(false);
     } catch {
-      setIsError(true);
-      setIsLoading(false);
+      if (isMounted) {
+        setIsError(true);
+        setIsLoading(false);
+        setStatsData([]);
+        setTotal(0);
+      }
     }
   }, [b1Metadata, isOpenDrawer]);
 
@@ -149,6 +158,9 @@ const TextReuseTable = ({ b1Metadata, normalizedQuery, handleRedirectToChart, b1
    * @param {Function} handleRedirectToChart 
    */
   const openViz = async (b1Metadata, b2Data, handleRedirectToChart) => {
+    // Move the focus away from the drawer before closing it:
+    document.getElementById("root")?.focus();
+
     // close the drawer - this prevents the drawer from re-rendering
     setIsOpenDrawer(false);
     // we already have full metadata of book1;
@@ -157,7 +169,6 @@ const TextReuseTable = ({ b1Metadata, normalizedQuery, handleRedirectToChart, b1
     const b2Metadata = await getVersionMetadataById(releaseCode, b2Data.id);
     // build the URL to the CSV file:
     const csvUrl = await buildPairwiseCsvURL(releaseCode, b1Metadata, b2Metadata);
-    console.log(csvUrl);
     handleRedirectToChart({book1: b1Metadata, book2: b2Metadata, csvUrl: csvUrl});
   }
 

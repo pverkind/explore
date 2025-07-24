@@ -39,8 +39,6 @@ const TextReuseData = ({ fullData, query, fullDataLoading }) => {
       setBooks,
     });
 
-    console.log(csvUrl);
-
     // generate csv file name
     const csvFileName = csvUrl.split("/").pop();
 
