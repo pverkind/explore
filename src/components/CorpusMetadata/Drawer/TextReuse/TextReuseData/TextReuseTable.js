@@ -1,36 +1,133 @@
-import { Typography } from "@mui/material";
-import { Box } from "@mui/material";
-import { Tooltip } from "@mui/material";
-import { IconButton } from "@mui/material";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
+import { Box, CircularProgress, IconButton, Tooltip, Typography } from "@mui/material";
 import TableHeader from "./TableHeader";
-import { CircularProgress } from "@mui/material";
-// import { getAllPairwiseData } from "../../../../../services/CorpusMetaData";
 import { getVersionMetadataById } from "../../../../../services/CorpusMetaData";
 import {  getOneBookReuseStats } from "../../../../../services/TextReuseData";
-import { Context } from "../../../../../App";
 import { buildPairwiseCsvURL } from "../../../../../utility/Helper";
+import { Context } from "../../../../../App";
 import Papa from "papaparse";
 
 
-const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => { 
-  const { dataLoading } = useContext(Context);
+const TextReuseTable = ({ b1Metadata, normalizedQuery, handleRedirectToChart, b1MetadataLoading }) => { 
+  const { isOpenDrawer, setIsOpenDrawer } = useContext(Context);
   const [sortingOrder, setSortingOrder] = useState("-instances_count");
-  const [data, setData] = useState([]);
+  const [statsData, setStatsData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [sortedData, setSortedData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [total, setTotal] = useState(0);
+
+  // fetch the stats data from GitHub:
+  useEffect(() => {
+    // Prevent from running at closing of the drawer
+    if (!isOpenDrawer) return;
+
+    // start the spinner
+    setIsLoading(true);
+
+    // don't fetch the data if the book1 metadata is not yet loaded
+    // (and we thus don't know yet which book1 to download stats data for)
+    if (!b1Metadata || !b1Metadata.version_uri) return;
+
+    /**
+     * Get the text reuse statistics for book1 from GitHub and parse it.
+     * 
+     * Each object contains:
+     *   - {string} id: Book 2's version ID (without language or extension)
+     *   - {string} book: Book 2's book URI (date+author+title)
+     *   - {number} alignments: Number of reuse alignments with the primary book
+     *   - {number} ch_match: Number of matched characters in alignments between Book1 and Book2>
+     */
+    const fetchData = async (b1Metadata) => {
+      const versionID = b1Metadata?.version_uri?.split(".").pop();
+      console.log("Fetching data! "+versionID);
+      const releaseCode = localStorage.getItem("release_code");
+      const statsFile = await getOneBookReuseStats(
+        JSON.parse(releaseCode),
+        versionID
+      );
+      // parse the statsFile csv:
+      Papa.parse(statsFile, {
+        header: true,
+        dynamicTyping: true, // should convert numeric fields to integers
+        skipEmptyLines: true,
+        complete: (result) => {
+          setTotal(result.data.length);
+          // add a lowercase version of the book URI (to make filtering easier down the line)
+          // and remove the ch_match key, which is not used here.
+          const stats = result.data.map(({ch_match, ...rest}) => ({
+            ...rest,
+            book_lc: rest.book.toLowerCase()
+          }));
+          setStatsData(stats);
+        }
+      });
+    };
+
+    // fetch the text reuse stats data:
+    try {
+      fetchData(b1Metadata);
+      setIsLoading(false);
+      setIsError(false);
+    } catch {
+      setIsError(true);
+      setIsLoading(false);
+    }
+  }, [b1Metadata, isOpenDrawer]);
+
+  // filter the data whenever the search query changes:
+  // NB: the query has already been lowercased and trimmed!
+  useEffect(() => {
+    // Prevent from running at closing of the drawer
+    if (!isOpenDrawer) return;
+    
+    const filtered = (normalizedQuery 
+      ? statsData.filter(d => d.book_lc.includes(normalizedQuery)) 
+      : statsData);
+    setFilteredData(filtered);
+    
+  }, [statsData, normalizedQuery, isOpenDrawer]);
+
+  // Sort the filtered data:
+  useEffect(() => {
+    // Prevent from running at closing of the drawer
+    if (!isOpenDrawer) return;
+
+    if (!filteredData || filteredData.length === 0) setSortedData([]);
+
+    // Create a copy of the filtered data 
+    const sorted = [...filteredData];
+
+    switch (sortingOrder) {
+      case "instances_count":
+        sorted.sort((a, b) => a.alignments - b.alignments);
+        break;
+      case "book":
+        sorted.sort((a, b) => a.book.localeCompare(b.book));
+        break;
+      case "-book":
+        sorted.sort((a, b) => b.book.localeCompare(a.book));
+        break;
+      default:
+        sorted.sort((a, b) => b.alignments - a.alignments);
+    }
+
+    setSortedData(sorted);
+
+  }, [filteredData, sortingOrder, isOpenDrawer]);
 
   /**
    * Download a csv file containing the text reuse data
    * 
    * @param {Object} b1Metadata full metadata of book1
-   * @param {Object} b2Data summary metadata of book2
+   * @param {Object} book2ID version ID of book2
    */
-  const downloadPairwiseCsv = async (b1Metadata, book2Data) => {
-    // we already have full metadata of book1:
+  const downloadPairwiseCsv = async (b1Metadata, book2ID) => {
+    // we already have full metadata of book1;
     // download the metadata for book 2 and get the ID:
     const releaseCode = JSON.parse(localStorage.getItem("release_code"));
-    const b2Metadata = await getVersionMetadataById(releaseCode, book2Data.id);
+    const b2Metadata = await getVersionMetadataById(releaseCode, book2ID);
     // build the URL to the CSV file:
     const csvUrl = await buildPairwiseCsvURL(releaseCode, b1Metadata, b2Metadata);
     const csvFilename = csvUrl.split("/").pop();
@@ -49,100 +146,20 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
    * 
    * @param {Object} b1Metadata full metadata of book1
    * @param {Object} b2Data summary metadata of book2
-   * @param {Function} handleRedirectedToChart 
+   * @param {Function} handleRedirectToChart 
    */
-  const openViz = async (b1Metadata, b2Data, handleRedirectedToChart) => {
+  const openViz = async (b1Metadata, b2Data, handleRedirectToChart) => {
+    // close the drawer - this prevents the drawer from re-rendering
+    setIsOpenDrawer(false);
     // we already have full metadata of book1;
     // download the metadata for book 2 and get the ID:
     const releaseCode = JSON.parse(localStorage.getItem("release_code"));
     const b2Metadata = await getVersionMetadataById(releaseCode, b2Data.id);
     // build the URL to the CSV file:
     const csvUrl = await buildPairwiseCsvURL(releaseCode, b1Metadata, b2Metadata);
-    b2Data.tsv_url = csvUrl;
-    handleRedirectedToChart(b2Data);
+    console.log(csvUrl);
+    handleRedirectToChart({book1: b1Metadata, book2: b2Metadata, csvUrl: csvUrl});
   }
-
-
-  // debounce function for search query:
-  // make sure the query is not changed after every key stroke:
-  function useDebounce(value, delay) {
-    const [debouncedValue, setDebouncedValue] = useState(value);
-
-    useEffect(() => {
-      const timeoutId = setTimeout(() => {
-        setDebouncedValue(value);
-      }, delay);
-
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }, [value, delay]);
-
-    return debouncedValue;
-  }
-
-  // get the query from the search box with a delay of 300 ms:
-  const debouncedQuery = useDebounce(query, 300);
-
-  useEffect(() => {
-    // don't run this code if the book1 metadata is not yet loaded
-    if (!fullData || !fullData.version_uri) return;
-
-    setIsLoading(true);
-    const releaseCode = localStorage.getItem("release_code");
-
-    /**
-     * Get the text reuse statistics for book1 from GitHub and parse it.
-     * 
-     * @returns {Promise<Object[]>} A promise that resolves to a list of reuse statistics objects.
-     * Each object contains:
-     *   - {string} id: Book 2's version ID (without language or extension)
-     *   - {string} book: Book 2's book URI (date+author+title)
-     *   - {number} alignments: Number of reuse alignments with the primary book
-     *   - {number} ch_match: Number of matched characters in alignments between Book1 and Book2>
-     */
-    const fetchData = async () => {
-      const versionID = fullData?.version_uri?.split(".").pop();
-      const statsFile = await getOneBookReuseStats(
-        JSON.parse(releaseCode),
-        versionID
-      );
-      // parse the statsFile csv:
-      Papa.parse(statsFile, {
-        header: true,
-        dynamicTyping: true, // should convert numeric fields to integers
-        skipEmptyLines: true,
-        complete: (result) => {
-          let statsData = result.data;
-          let filtered;
-          // filter the data based on the user's search query:
-          if (query) {
-             filtered = statsData.filter(d => d.book.includes(query));
-          } else {
-            filtered = statsData;
-          }
-          // sort the data based on the user's request 
-          // (default= number of alignments, descending):
-          if (sortingOrder === "instances_count"){
-            filtered.sort((a, b) => a.alignments - b.alignments);
-          } else if (sortingOrder === "book") {
-            filtered.sort((a, b) => a.book.localeCompare(b.book));
-          } else if (sortingOrder === "-book") {
-            filtered.sort((a, b) => b.book.localeCompare(a.book));
-          } else {
-            filtered.sort((a, b) => b.alignments - a.alignments);
-          }
-          // set Context variables:
-          setTotal(statsData.length);
-          setData(filtered);
-          setIsLoading(false);
-        }
-      });
-    };
-    
-    fetchData();
-
-  }, [sortingOrder, fullData, debouncedQuery, query]);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -151,8 +168,9 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
           sortingOrder={sortingOrder}
           setSortingOrder={setSortingOrder}
         />
-
-        {isLoading || dataLoading?.uploading ? (
+        {isError && <Typography>Error loading data...</Typography> }
+        {/* {isLoading || dataLoading?.uploading ? (*/}
+        {isLoading || b1MetadataLoading ? (
           <Box
             sx={{
               width: "100%",
@@ -174,23 +192,8 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
             display: "flex",
             flexDirection: 'column',
           }}>
-            {data.length === 0 ? (
-              <Box
-                display={"flex"}
-                justifyContent={"center"}
-                py={"20px"}
-                pt={"40px"}
-                width={"100%"}
-              >
-                <Typography variant="h4">
-                  No Text Text Reuse Statistics Available
-                </Typography>
-                <Typography variant="h6">
-                  Select two texts in the metadata table to visualize text reuse
-                </Typography>
-              </Box>
-            ) : (
-              data.map((item, i) => (
+            {
+              sortedData.map((item, i) => (
                 <Box
                   key={i}
                   sx={{
@@ -237,9 +240,9 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
                       <Typography>
                         <button
                           onClick={() => openViz(
-                            fullData, 
+                            b1Metadata, 
                             item, 
-                            handleRedirectedToChart
+                            handleRedirectToChart
                           )}
                           style={{
                             background: "none",
@@ -265,7 +268,7 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
                             fontSize: "18px",
                             color: "#7593af",
                           }}
-                          onClick={() => downloadPairwiseCsv(fullData, item)}
+                          onClick={() => downloadPairwiseCsv(b1Metadata, item.id)}
                         >
                           <i className="fa-solid fa-file-csv"></i>
                         </IconButton>
@@ -274,7 +277,7 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
                     </Tooltip>
                   </Box>
                 </Box>
-              ))
+              )
             )}
           </Box>
         )}
@@ -296,9 +299,7 @@ const TextReuseTable = ({ fullData, query, handleRedirectedToChart }) => {
           boxShadow: '2px 4px 8px rgba(0,0,0,0.2)'
         }}
       ></Box>
-      {data.length !== 0 && (
-        <Typography>{`Number of results: ${data.length} / ${total}`}</Typography>
-      )}
+      <Typography>{`Number of results: ${sortedData.length} / ${total}`}</Typography>
     </Box>
   );
 };

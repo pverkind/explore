@@ -5,7 +5,7 @@ import TextReuseData from "./TextReuseData/index.js";
 import { TextField } from "@mui/material";
 import { srtFolders, oneToAllFolders } from "../../../../assets/srtFolders";
 
-const DownloadSrt = ({ fullData }) => {
+const DownloadSrt = ({ fullData, fullDataLoading }) => {
   const [query, setQuery] = useState("");
   const releaseCode = fullData?.release_version?.release_code;
   const passim_folder = srtFolders[releaseCode];
@@ -119,7 +119,7 @@ const DownloadSrt = ({ fullData }) => {
             }}
           />
         </Box>
-        <TextReuseData fullData={fullData} query={query} setQuery={setQuery} />
+        <TextReuseData fullData={fullData} query={query} setQuery={setQuery} fullDataLoading={fullDataLoading}/>
       </Box>
 
       <Box>

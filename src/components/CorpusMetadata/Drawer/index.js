@@ -29,6 +29,8 @@ export default function LeftSidePanel() {
     setIsOpenDrawer,
   } = useContext(Context);
   const [fullData, setFullData] = useState({});
+  const [fullDataLoading, setFullDataLoading] = useState(false);
+
 
   // download metadata function
   const handleDownloadJsonClick = () => {
@@ -88,7 +90,11 @@ export default function LeftSidePanel() {
       setFullData(data ? data : {});
     };
     if (isOpenDrawer) {
+      // reset the fullData first:
+      setFullData({});
+      setFullDataLoading(true);
       fetchData();
+      setFullDataLoading(false);
     }
   }, [versionDetail, isOpenDrawer]);
 
@@ -198,7 +204,7 @@ export default function LeftSidePanel() {
                 {fullData && <VersionDetails fullData={fullData} />}
               </TabPanel>
               <TabPanel value={tabIndex} index={3}>
-                {fullData && <TextReuse fullData={fullData} />}
+                {fullData && <TextReuse fullData={fullData} fullDataLoading={fullDataLoading}/>}
               </TabPanel>
             </Box>
           </Box>
