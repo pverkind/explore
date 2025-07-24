@@ -366,11 +366,11 @@ const NavigationAndStats = () => {
                   >
                     {checkedBooks.length < 3 && pairwiseUrl !== null ? (
                       <i
-                        className="fa-solid fa-file-csv"
+                        className="fa-solid fa-file"
                         style={{ color: "green" }}
                       ></i>
                     ) : (
-                      <i className="fa-solid fa-file-csv"></i>
+                      <i className="fa-solid fa-file"></i>
                     )}
                   </IconButton>
                 </span>
@@ -396,11 +396,11 @@ const NavigationAndStats = () => {
                   >
                     {checkedBooks.length < 3 && pairwiseLiteUrl !== null ? (
                       <i
-                        className="fa-solid fa-file-lines"
+                        className="fa-solid fa-file-half-dashed"
                         style={{ color: "green" }}
                       ></i>
                     ) : (
-                      <i className="fa-solid fa-file-lines"></i>
+                      <i className="fa-solid fa-file-half-dashed"></i>
                     )}
                   </IconButton>
                 </span>
