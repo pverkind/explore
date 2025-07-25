@@ -31,6 +31,7 @@ const Visual = (props) => {
     downloadedTexts,
     setDownloadedTexts,
     releaseCode,
+    setTextAvailable
   } = useContext(Context);
 
   const [toggle, setToggle] = useState(false);
@@ -706,6 +707,7 @@ const Visual = (props) => {
       // if there isn't, we can't get text from an external source, 
       // only from the uploaded csv file itself
       console.log("no metadata => can't get milestone text from API!");
+      setTextAvailable(false);
 
       setBooks({
         book1: {
@@ -743,6 +745,7 @@ const Visual = (props) => {
       });
 
     } else {
+      setTextAvailable(true);
       setDataLoading({ ...dataLoading, books: true });
       let ms1Text = await getMilestoneText(
         releaseCode,

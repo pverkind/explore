@@ -23,6 +23,7 @@ const Books = ({ chartSpecificBar }) => {
     normalizeHa,
     removePunct,
     removeTags,
+    textAvailable
   } = useContext(Context);
   const [toggle, setToggle] = useState(true);
   const [wikiDiffBook, setWikiDiffBook] = useState("");
@@ -210,14 +211,16 @@ const Books = ({ chartSpecificBar }) => {
             )}
           </Box>
           {/* Button for showing / hiding the context of the alignment */}
-          <Box>
-            <Button
-              sx={{ width: "100%", mt: "5px" }}
-              onClick={loadMilestoneContext}
-            >
-              {alignmentOnly ? "LOAD CONTEXT" : "HIDE CONTEXT"}
-            </Button>
-          </Box>
+          {textAvailable &&
+            (<Box>
+              <Button
+                sx={{ width: "100%", mt: "5px" }}
+                onClick={loadMilestoneContext}
+              >
+                {alignmentOnly ? "LOAD CONTEXT" : "HIDE CONTEXT"}
+              </Button>
+            </Box>)
+          }
         </>
       )}
     </>

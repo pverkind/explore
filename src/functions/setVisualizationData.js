@@ -331,7 +331,7 @@ export const setMultiVizData = (values) => {
     setChartData,
     setIsError,
     setIsFileUploaded,
-    setUrl,
+    setUrl
   } = values;
   if (book1) {
     try {

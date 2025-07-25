@@ -174,6 +174,7 @@ function App() {
   const [showOptions, setShowOptions] = useState(false);
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const [includeURL, setIncludeURL] = useState(true);
+  const [textAvailable, setTextAvailable] = useState(true);
   const [url, setUrl] = useState("");
   const [highlightMode, setHighlightMode] = useState("diff");
   const [nSharedChars, setNSharedChars] = useState(50);
@@ -358,6 +359,8 @@ function App() {
         setShowOptions,
         showDownloadOptions, 
         setShowDownloadOptions,
+        textAvailable, 
+        setTextAvailable,
         includeURL, 
         setIncludeURL,
         url,
