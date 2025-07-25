@@ -144,7 +144,9 @@ const VisualisationPage = () => {
     setDataLoading({ ...dataLoading, uploading: true });
     //console.log("UPLOAD:");
     //console.log(upload); // upload is a Filelist object
-    if (upload.length === 1 ) {
+    console.log(upload[0]);
+    if (upload.length === 1 && !(upload[0].name.includes("_all"))) {
+    //if (upload.length === 1) {
       // only 1 file uploaded => this should be a pairwise visualisation!
       setIsPairwiseViz(true);
 
