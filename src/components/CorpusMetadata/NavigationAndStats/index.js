@@ -305,6 +305,22 @@ const NavigationAndStats = () => {
           {checkedBooks.length !== 0 && (
             <>
               <Typography>Selected: {checkedBooks.length}</Typography>
+
+              <Box>
+                <Tooltip title={"Deselect All"} placement="top">
+                  <span>
+                    <IconButton
+                      size="large"
+                      variant="text"
+                      sx={{ fontSize: "15px", color: "#d01f2f", ml: "5px" }}
+                      onClick={() => setCheckedBooks([])}
+                    >
+                      <i className="fa-regular fa-square-minus"></i>
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </Box>
+
               <Tooltip
                 placement="top"
                 title={
@@ -452,22 +468,6 @@ const NavigationAndStats = () => {
             </Box>
           ) : (
             ""
-          )}
-          {checkedBooks.length !== 0 && (
-            <Box ml={checkedBooks.length === 1 ? "20px" : "0px"}>
-              <Tooltip title={"Deselect All"} placement="top">
-                <span>
-                  <IconButton
-                    size="large"
-                    variant="text"
-                    sx={{ fontSize: "15px" }}
-                    onClick={() => setCheckedBooks([])}
-                  >
-                    <i className="fa-regular fa-square-minus"></i>
-                  </IconButton>
-                </span>
-              </Tooltip>
-            </Box>
           )}
         </Grid>
 
