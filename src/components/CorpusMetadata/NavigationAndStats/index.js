@@ -365,6 +365,8 @@ const NavigationAndStats = () => {
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               Select a second book to visualise pairwise text reuse
             </Typography>
+          ) : checkedBooks.length < 3 && !showLoadingMessage &&loadingReuseData ? (
+            ""
           ) : checkedBooks.length < 3 && showLoadingMessage ? (
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               <CircularProgress size={"15px"} /> Loading text reuse data for selected books...
