@@ -1,7 +1,6 @@
-import { CircularProgress, IconButton, Tooltip } from "@mui/material";
-import React, { useContext } from "react";
-
+import { useContext } from "react";
 import { CSVLink } from "react-csv";
+import { CircularProgress, IconButton, Tooltip } from "@mui/material";
 import { Context } from "../../../App";
 
 // Function to flatten data for export (ChatGPT suggestion)

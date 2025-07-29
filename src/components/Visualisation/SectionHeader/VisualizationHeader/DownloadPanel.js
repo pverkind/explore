@@ -1,10 +1,7 @@
-import React from "react";
 import { useContext, useRef, useEffect } from "react";
-import { Context } from "../../../../App";
-import { Box } from "@mui/material";
-import { Button, TextField, Typography, Tooltip } from "@mui/material";
+import { Box, Button, TextField, Typography, Tooltip } from "@mui/material";
 import * as d3 from "d3";
-//import TickFontSizeControl from "./TickFontSizeControl";
+import { Context } from "../../../../App";
 
 
 const DownloadPanel = ( {isPairwiseViz, downloadFileName} ) => {

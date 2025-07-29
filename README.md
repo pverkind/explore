@@ -1,19 +1,20 @@
 # KITAB explore 
 
-A web portal for the KITAB project.
+A web portal for the [KITAB project](https://kitab-project.org).
 
-The portal gives access to the OpenITI metadata and the KITAB text reuse data and visualisations.
+The portal gives access to the [OpenITI corpus](https://openiti.org/projects/OpenITI%20Corpus.html) metadata 
+and the [KITAB](https://kitab-project.org) text reuse data and visualisations.
+
+The website is live at https://kitab-project.org/explore
 
 ![Kitab Logo](public/logo192.png) 
-
 
 ## Features
 
 - **Extensive Collection:** Browse through a vast repository of historical Arabic books from the OpenITI corpus.
 - **Metata Search Functionality:** Search for specific works by author, title and other metadata.
-- **Explore Text Reuse Data:** visualize the text reuse relations between two books, or between one book and all other books in the corpus
+- **Explore Text Reuse Data:** visualize the text reuse relations between two books, or between one book and all other books in the corpus.
 - **Download:** Download OpenITI text files and KITAB text reuse data.
-
 
 ## Getting Started
 
@@ -28,8 +29,8 @@ To get started with KITAB explore, follow these steps:
 2. **Install Dependencies:**
 
    ```bash
-   cd kitabapps
-   npm install # Or use yarn if preferred
+   cd explore
+   npm install
    ```
 
 3. **Run the Application:**
@@ -38,7 +39,7 @@ To get started with KITAB explore, follow these steps:
    npm start
    ```
 
-   4. **Access the Application:**
+4. **Access the Application:**
 
    Open your web browser and navigate to http://localhost:8080.
 
@@ -89,6 +90,6 @@ We welcome contributions to enhance the library and improve its features. To con
 If you encounter any issues or have suggestions, please open an issue. We appreciate your feedback!
 License - https://github.com/kitab-project-org/explore/issues/new
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
 
 ## End

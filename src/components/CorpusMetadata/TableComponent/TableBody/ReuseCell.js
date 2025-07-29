@@ -1,6 +1,5 @@
+import { useContext } from "react";
 import { TableCell, Tooltip, Link, Typography } from "@mui/material";
-import React, { useContext } from "react";
-//import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Context } from "../../../../App";
 import { oneToAllFolders } from "../../../../assets/srtFolders";
 import { REPO_NAME } from "../../../Common/NavigationBar";

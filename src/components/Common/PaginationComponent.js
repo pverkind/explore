@@ -1,5 +1,4 @@
 import { TablePagination } from "@mui/material";
-import React from "react";
 import { useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Context } from "../../App";
