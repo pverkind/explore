@@ -77,6 +77,7 @@ const NavigationAndStats = () => {
         
         }
       else {
+        console.log("Checking selected books for pairwise text reuse data");
         setLoadingReuseData(true);    
       
         const book1 = checkedBooks[0];
@@ -95,16 +96,18 @@ const NavigationAndStats = () => {
         // Check the URLs - if they are valid then set the state variables
         // If the URL is not valid, then set the state variable to null
         try {
-          const responseLite = await fetch(LiteUrl, { method: 'HEAD' });
-          if (responseLite.ok) {
+          const responseFull = await fetch(fullUrl, { method: 'HEAD' });
+          if (responseFull.ok) {
             setPairwiseLiteUrl(LiteUrl);
+            setPairwiseUrl(fullUrl)
             } else {
               setPairwiseLiteUrl(null);
             }
           } catch (error) {
-                
+              
               const srtFolder = srtFoldersGitHub[releaseCode];
               const csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
+              console.log(`Fetching data from Github with URL:${csvUrl}`);  
               const responseGitHub = await fetch(csvUrl, { method: 'HEAD' });
               if (responseGitHub.ok) {
                 setPairwiseLiteUrl(csvUrl);
@@ -114,22 +117,22 @@ const NavigationAndStats = () => {
                 console.log("No URL found for pairwise Lite data");
             }
             };
-        try {
-          const responseFull = await fetch(fullUrl, { method: 'HEAD' });
-          if (responseFull.ok) {
-            setPairwiseUrl(fullUrl);
-            } else {
-              setPairwiseUrl(null);
-            }
-          } catch (error) {
-            console.log("No URL found for pairwise Full data");
-            setPairwiseUrl(null);
-          }
+        // try {
+        //   const responseFull = await fetch(fullUrl, { method: 'HEAD' });
+        //   if (responseFull.ok) {
+        //     setPairwiseUrl(fullUrl);
+        //     } else {
+        //       setPairwiseUrl(null);
+        //     }
+        //   } catch (error) {
+        //     console.log("No URL found for pairwise Full data");
+        //     setPairwiseUrl(null);
+        //   }
         setLoadingReuseData(false);
         }
       };
     checkSelectedUrls();
-    }, [checkedBooks, releaseCode, booksReady, pairwiseFileName, pairwiseUrl, pairwiseLiteUrl]);
+    }, [checkedBooks, releaseCode, booksReady]);
 
   // Download the text reuse data from the server - getting the full data file:
   const downloadTextReuseData = async (downloadUrl) => {
