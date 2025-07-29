@@ -351,7 +351,7 @@ const NavigationAndStats = () => {
                 title={
                   checkedBooks.length < 3 ? pairwiseUrl === null ?
                     "Pairwise File not available for selected books"
-                    : "Download Pairwise File in CSV format"
+                    : "Download Pairwise Text Reuse Data (larger file, excl. actual text alignments)"
                     : "Select 2 books to download a file with pairwise text reuse"
                 }
                 placement="top"
@@ -380,9 +380,9 @@ const NavigationAndStats = () => {
               <Tooltip
                 title={
                   checkedBooks.length < 3 ? pairwiseLiteUrl === null ?
-                    "Lite Pairwise File not available for selected books"
-                    : "Download Lite Pairwise File in CSV format"
-                    : "Select 2 books to download a file with pairwise text reuse"
+                    "Text Reuse Data not available in this format for selected books"
+                    : "Download Pairwise Text Reuse Data (smaller file, excl. actual text alignments)"
+                    : "Select 2 books to download pairwise text reuse data"
                 }
                 placement="top"
               >
