@@ -51,6 +51,7 @@ const NavigationAndStats = () => {
   const [pairwiseLiteUrl, setPairwiseLiteUrl] = useState(null);
   const [pairwiseUrl, setPairwiseUrl] = useState(null);
   const [pairwiseFileName, setPairwiseFileName] = useState(null);
+  const [githubUrl, setGithubUrl] = useState(false);
 
   // Check if relevant parts have been loaded before we try to build the URLs and check them
   // If the lite url is 
@@ -103,6 +104,7 @@ const NavigationAndStats = () => {
             const responseGitHub = await fetch(csvUrl, { method: 'HEAD' });
             if (responseGitHub.ok) {
               setPairwiseLiteUrl(csvUrl);
+              setGithubUrl(true);
             } else {
               setPairwiseLiteUrl(null);
               console.log("No URL found for pairwise Lite data");
@@ -128,13 +130,30 @@ const NavigationAndStats = () => {
   const downloadTextReuseData = async (downloadUrl) => {
 
     if (downloadUrl !== null) {
-
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = pairwiseFileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (githubUrl) {
+        // If the URL is a GitHub URL, then we need to download it differently
+        const response = await fetch(downloadUrl);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", pairwiseFileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+       }
+      else {
+      
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = pairwiseFileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } 
   }
   
