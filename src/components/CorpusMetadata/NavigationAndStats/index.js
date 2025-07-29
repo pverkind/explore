@@ -55,6 +55,7 @@ const NavigationAndStats = () => {
   const [pairwiseFileName, setPairwiseFileName] = useState(null);
   const [githubUrl, setGithubUrl] = useState(false);
   const [loadingReuseData, setLoadingReuseData] = useState(false);
+  const [showLoadingMessage, setShowLoadingMessage] = useState(false);
 
   // Check if relevant parts have been loaded before we try to build the URLs and check them
   // If the lite url is 
@@ -64,10 +65,21 @@ const NavigationAndStats = () => {
     releaseCode &&
     srtFolders[releaseCode];
 
+  // Function to delay showing a loading message - avoids page flickering when data loads quickly
+  useEffect(() => {
+      let timer;
+      if (loadingReuseData === true) {
+        timer = setTimeout(() => setShowLoadingMessage(true), 1000);
+      } else {
+        setShowLoadingMessage(false);
+      }
+
+    return () => clearTimeout(timer);
+    }, [loadingReuseData]);
+  
   useEffect(() => {
     if (!booksReady) return;
     const checkSelectedUrls = async () => {
-      console.log(checkedBooks);
       if (checkedBooks.length !== 2) {
         // If we have not selected two books, then set these pairwise parameters to null
         setPairwiseLiteUrl(null);
@@ -353,11 +365,11 @@ const NavigationAndStats = () => {
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               Select a second book to visualise pairwise text reuse
             </Typography>
-          ) : checkedBooks.length < 3 && loadingReuseData === true ? (
+          ) : checkedBooks.length < 3 && showLoadingMessage ? (
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               <CircularProgress size={"15px"} /> Loading text reuse data for selected books...
             </Typography>
-          ) : checkedBooks.length < 3 && pairwiseLiteUrl === null ? (
+          ) : checkedBooks.length < 3 && !loadingReuseData && pairwiseLiteUrl === null ? (
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               No text reuse data available for selected books
             </Typography>
