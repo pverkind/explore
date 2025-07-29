@@ -350,11 +350,11 @@ const NavigationAndStats = () => {
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               Select a second book to visualise pairwise text reuse
             </Typography>
-          ) : checkedBooks.length < 3 && loadingReuseData == true ? (
+          ) : checkedBooks.length < 3 && loadingReuseData === true ? (
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               <CircularProgress size={"15px"} /> Loading text reuse data for selected books...
             </Typography>
-          ) : checkedBooks.length < 3 && pairwiseLiteUrl == null ? (
+          ) : checkedBooks.length < 3 && pairwiseLiteUrl === null ? (
             <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
               No text reuse data available for selected books
             </Typography>
