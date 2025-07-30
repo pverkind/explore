@@ -54,6 +54,7 @@ const NavigationAndStats = () => {
   const [pairwiseUrl, setPairwiseUrl] = useState(null);
   const [pairwiseFileName, setPairwiseFileName] = useState(null);
   const [githubUrl, setGithubUrl] = useState(false);
+  const [idPair, setIdPair] = useState(null);
   const [loadingReuseData, setLoadingReuseData] = useState(false);
   const [showLoadingMessage, setShowLoadingMessage] = useState(false);
 
@@ -104,6 +105,9 @@ const NavigationAndStats = () => {
         const fullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
         const csvFileName = `${book1Code}_${book2Code}.csv`;
         setPairwiseFileName(csvFileName);
+
+        const idPair = `${book1Code}_${book2Code}`;
+        setIdPair(idPair);
 
         // Check the URLs - if they are valid then set the state variables
         // If the URL is not valid, then set the state variable to null
@@ -175,6 +179,15 @@ const NavigationAndStats = () => {
         document.body.removeChild(link);
       }
     } 
+  }
+
+  // Load the pairwise visualisation through a URL - builds the URL and opens it in a new tab
+  const loadChartFromUrl = async () => {
+    if (pairwiseLiteUrl !== null) {      
+      const baseUrl = window.location.origin;
+      const vizUrl = `${baseUrl}/#/visualise/${releaseCode}/?books=${idPair}`;
+      window.open(vizUrl, "_blank");
+    }
   }
   
 
@@ -393,7 +406,7 @@ const NavigationAndStats = () => {
                     variant="text"
                     sx={{ fontSize: "15px", padding: "5px"}}
                     disabled={checkedBooks.length < 3 ? false : true}
-                    onClick={() => loadChartFromSelected()}
+                    onClick={() => loadChartFromUrl()}
                   >
                     {checkedBooks.length < 3 ? (
                       <i
