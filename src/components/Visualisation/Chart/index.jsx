@@ -1,14 +1,14 @@
 import { Box, Typography } from "@mui/material";
-import React, { useContext, useEffect, useState } from "react";
-import { Context } from "../../../App";
-import * as d3 from "d3";
+import { useContext, useEffect, useState } from "react";
+import Section from "../Metadata/Section";
 import MSToggler from "../SectionHeader/MSToggler";
 import SectionHeaderLayout from "../SectionHeader/SectionHeaderLayout";
 import VisualizationHeader from "../SectionHeader/VisualizationHeader";
+import { Context } from "../../../App";
 import { extractAlignment } from "../../../functions/alignmentFunctions";
 import { getMilestoneText } from "../../../functions/getMilestoneText";
-import Section from "../Metadata/Section";
 import { getHighestValueInArrayOfObjects } from "../../../utility/Helper";
+import * as d3 from "d3";
 
 
 const Visual = (props) => {
@@ -31,6 +31,7 @@ const Visual = (props) => {
     downloadedTexts,
     setDownloadedTexts,
     releaseCode,
+    setTextAvailable
   } = useContext(Context);
 
   const [toggle, setToggle] = useState(false);
@@ -52,6 +53,8 @@ const Visual = (props) => {
       },
     },
   });
+
+  console.log(chartData);
 
   var clipPathId = "clipDrawing";
   var clipPath = "url('#clipDrawing')";
@@ -698,90 +701,136 @@ const Visual = (props) => {
 
     // Get the relevant milestones
     // (from the already downloaded milestones or from GitHub)
-    setDataLoading({ ...dataLoading, books: true });
-    let ms1Text = await getMilestoneText(
-      releaseCode,
-      versionCode1,
-      d1.seq1,
-      downloadedTexts,
-      setDownloadedTexts
-    );
-    //console.log(ms1Text)
-    //console.log(`getMilestoneText(${releaseCode}, ${versionCode2}, ${d1.ms2})`);
-    let ms2Text = await getMilestoneText(
-      releaseCode,
-      versionCode2,
-      d1.seq2,
-      downloadedTexts,
-      setDownloadedTexts
-    );
-    //console.log(ms2Text)
+    
+    // check if there is a link for the original text:
+    if (metaData?.book1?.url === "NOT_FOUND" || metaData?.book1?.url === undefined || metaData?.book1 === undefined ) {
+      // if there isn't, we can't get text from an external source, 
+      // only from the uploaded csv file itself
+      console.log("no metadata => can't get milestone text from API!");
+      setTextAvailable(false);
 
-    setDataLoading({ ...dataLoading, books: false });
+      setBooks({
+        book1: {
+          versionCode: versionCode1,
+          title: metaData?.book1?.bookTitle?.label,
+          content: [],
+          ms: d1?.seq1,
+        },
+        book2: {
+          versionCode: versionCode2,
+          title: metaData?.book2?.bookTitle?.label,
+          content: [],
+          ms: d1?.seq2,
+        },
+      });
 
-    let b1Downloaded =
-      downloadedTexts[releaseCode][versionCode1]["downloadedMs"];
-    let b2Downloaded =
-      downloadedTexts[releaseCode][versionCode2]["downloadedMs"];
-    /*console.log("SETBOOKS");
-    console.log(b1Downloaded);
-    console.log(b2Downloaded);*/
+      // reset the milestones to be displayed in the reader:
+      setDisplayMs({ book1: {}, book2: {} });
 
-    setBooks({
-      book1: {
-        versionCode: versionCode1,
-        title: metaData?.book1?.bookTitle?.label,
-        content: b1Downloaded?.msTexts,
-        ms: d1?.seq1,
-      },
-      book2: {
-        versionCode: versionCode2,
-        title: metaData?.book2?.bookTitle?.label,
-        content: b2Downloaded,
-        ms: d1?.seq2,
-      },
-    });
+      setBooksAlignment({
+        s1: d1?.s1,
+        s2: d1?.s2,
+        bw1: d1?.bw1,
+        ew1: d1?.ew1,
+        bw2: d1?.bw2,
+        ew2: d1?.ew2,
+        bc1: d1?.b1,
+        ec1: d1?.e1,
+        bc2: d1?.b2,
+        ec2: d1?.b2,
+        beforeAlignment1: "",
+        afterAlignment1: "",
+        beforeAlignment2: "",
+        afterAlignment2: "",
+      });
 
-    // reset the milestones to be displayed in the reader:
-    setDisplayMs({ book1: {}, book2: {} });
+    } else {
+      setTextAvailable(true);
+      setDataLoading({ ...dataLoading, books: true });
+      let ms1Text = await getMilestoneText(
+        releaseCode,
+        versionCode1,
+        d1.seq1,
+        downloadedTexts,
+        setDownloadedTexts
+      );
+      //console.log(ms1Text)
+      //console.log(`getMilestoneText(${releaseCode}, ${versionCode2}, ${d1.ms2})`);
+      let ms2Text = await getMilestoneText(
+        releaseCode,
+        versionCode2,
+        d1.seq2,
+        downloadedTexts,
+        setDownloadedTexts
+      );
+      //console.log(ms2Text)
 
-    // extract the alignment text from the milestone
-    // if it is not in the csv data:
-    let [s1, startChar1, endChar1] = extractAlignment(
-      ms1Text,
-      d1?.bw1,
-      d1?.ew1,
-      "word"
-    );
-    let [s2, startChar2, endChar2] = extractAlignment(
-      ms2Text,
-      d1?.bw2,
-      d1?.ew2,
-      "word"
-    );
+      setDataLoading({ ...dataLoading, books: false });
+      let b1Downloaded =
+        downloadedTexts[releaseCode][versionCode1]["downloadedMs"];
+      let b2Downloaded =
+        downloadedTexts[releaseCode][versionCode2]["downloadedMs"];
+      /*console.log("SETBOOKS");
+      console.log(b1Downloaded);
+      console.log(b2Downloaded);*/
 
-    let beforeAlignment1 = ms1Text.slice(0, startChar1);
-    let afterAlignment1 = ms1Text.slice(endChar1, ms1Text.length);
-    let beforeAlignment2 = ms2Text.slice(0, startChar2);
-    let afterAlignment2 = ms2Text.slice(endChar2, ms2Text.length);
+      setBooks({
+        book1: {
+          versionCode: versionCode1,
+          title: metaData?.book1?.bookTitle?.label,
+          content: b1Downloaded?.msTexts,
+          ms: d1?.seq1,
+        },
+        book2: {
+          versionCode: versionCode2,
+          title: metaData?.book2?.bookTitle?.label,
+          content: b2Downloaded,
+          ms: d1?.seq2,
+        },
+      });
 
-    setBooksAlignment({
-      s1: s1,
-      s2: s2,
-      bw1: d1?.bw1,
-      ew1: d1?.ew1,
-      bw2: d1?.bw2,
-      ew2: d1?.ew2,
-      bc1: startChar1,
-      ec1: endChar1,
-      bc2: startChar2,
-      ec2: endChar2,
-      beforeAlignment1: beforeAlignment1,
-      afterAlignment1: afterAlignment1,
-      beforeAlignment2: beforeAlignment2,
-      afterAlignment2: afterAlignment2,
-    });
+      // reset the milestones to be displayed in the reader:
+      setDisplayMs({ book1: {}, book2: {} });
 
+      // extract the alignment text from the milestone
+      // if it is not in the csv data:
+      let [s1, startChar1, endChar1] = extractAlignment(
+        ms1Text,
+        d1?.bw1,
+        d1?.ew1,
+        "word"
+      );
+      let [s2, startChar2, endChar2] = extractAlignment(
+        ms2Text,
+        d1?.bw2,
+        d1?.ew2,
+        "word"
+      );
+
+      let beforeAlignment1 = ms1Text.slice(0, startChar1);
+      let afterAlignment1 = ms1Text.slice(endChar1, ms1Text.length);
+      let beforeAlignment2 = ms2Text.slice(0, startChar2);
+      let afterAlignment2 = ms2Text.slice(endChar2, ms2Text.length);
+
+      setBooksAlignment({
+        s1: s1,
+        s2: s2,
+        bw1: d1?.bw1,
+        ew1: d1?.ew1,
+        bw2: d1?.bw2,
+        ew2: d1?.ew2,
+        bc1: startChar1,
+        ec1: endChar1,
+        bc2: startChar2,
+        ec2: endChar2,
+        beforeAlignment1: beforeAlignment1,
+        afterAlignment1: afterAlignment1,
+        beforeAlignment2: beforeAlignment2,
+        afterAlignment2: afterAlignment2,
+      });
+    }
+
+    
     if (d1 === selectedLine) return;
 
     selectedLine && clearSelectedLine();

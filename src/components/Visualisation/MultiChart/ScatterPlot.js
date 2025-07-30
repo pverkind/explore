@@ -1,7 +1,7 @@
+import { useEffect, useRef, useContext } from "react";
 import { Box } from "@mui/material";
-import React, { useEffect, useRef, useContext } from "react";
-import { Context } from "../../../App";
 import * as d3 from "d3";
+import { Context } from "../../../App";
 import { extractAlignment } from "../../../functions/alignmentFunctions";
 import { getMilestoneText } from "../../../functions/getMilestoneText";
 import { calculateTooltipPos } from "../../../utility/Helper";

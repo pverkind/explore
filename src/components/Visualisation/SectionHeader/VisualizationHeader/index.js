@@ -1,8 +1,8 @@
+import { useContext } from "react";
 import { Box, Button, IconButton, Link, Tooltip } from "@mui/material";
-import React, { useContext } from "react";
-import { Context } from "../../../../App";
 import FlipButton from "./FlipButton";
 import ScatterLegend from "../../MultiChart/ScatterLegend";
+import { Context } from "../../../../App";
 
 
 const VisualizationHeader = ({ restoreCanvas, isPairwiseViz, colorScale, width }) => {

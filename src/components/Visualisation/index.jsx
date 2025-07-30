@@ -1,27 +1,21 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Context } from "../../App";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import Header from "./Header";
 import UploadInput from "./UploadInput";
 import Visual from "./Chart";
 import MultiVisual from "./MultiChart";
-import { getVersionMeta } from "../../functions/getVersionMeta";
-import LoaderIcon from "../Common/LoaderIcon";
 import Books from "./Books";
 import CircularInterminate from "./CircularIndeterminate";
+import LoaderIcon from "../Common/LoaderIcon";
 import { getMetadataObject } from "../../functions/getMetadataObject";
 import { setInitialValues } from "../../functions/setInitialValues";
-import {
-  setPairwiseVizData,
-  setMultiVizData,
-} from "../../functions/setVisualizationData";
-import {
-  downloadCsvData,
-  getOneBookReuseStats,
-  getOneBookMsData,
-} from "../../services/TextReuseData";
+import { getVersionMeta } from "../../functions/getVersionMeta";
+import { setPairwiseVizData, setMultiVizData } from "../../functions/setVisualizationData";
+import { downloadCsvData, getOneBookReuseStats, getOneBookMsData } from "../../services/TextReuseData";
 import { lightSrtFolders, srtFoldersGitHub } from "../../assets/srtFolders";
+import { Context } from "../../App";
+
 
 // construct the text reuse csv filename based on metadata of both books:
 const buildCsvFilename = (book1Meta, book2Meta) => {
@@ -150,7 +144,9 @@ const VisualisationPage = () => {
     setDataLoading({ ...dataLoading, uploading: true });
     //console.log("UPLOAD:");
     //console.log(upload); // upload is a Filelist object
-    if (upload.length === 1 ) {
+    console.log(upload[0]);
+    if (upload.length === 1 && !(upload[0].name.includes("_all"))) {
+    //if (upload.length === 1) {
       // only 1 file uploaded => this should be a pairwise visualisation!
       setIsPairwiseViz(true);
 

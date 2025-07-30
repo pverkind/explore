@@ -1,3 +1,5 @@
+import { useContext, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -7,9 +9,7 @@ import {
   ListSubheader,
   Switch,
 } from "@mui/material";
-import React, { useContext, useEffect } from "react";
 import MetaFilters from "./MetaFilters";
-import { useSearchParams } from "react-router-dom";
 import { Context } from "../../../App";
 import { cleanSearchPagination } from "../../../utility/Helper"
 
@@ -33,7 +33,7 @@ const FilterSidebar = () => {
   };
 
   useEffect(() => {
-    if (!analysisPriority && searchParams.size === 0) {
+    if (!analysisPriority) {
       const params = Object.fromEntries([...searchParams]);
       setSearchParams({ ...params, version: "pri" });
     } else {

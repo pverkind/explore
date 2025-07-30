@@ -6,7 +6,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { downloadGitHubRawFile } from "./MoreCell";
 import { Context } from "../../../../App";
 import CopyToClipboard from "../../../Common/CopyToClipboard";

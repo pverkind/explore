@@ -1,19 +1,16 @@
-import React, { useContext } from "react";
-import { downloadCsvData } from "../../../../../services/TextReuseData";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+
+import TextReuseTable from "./TextReuseTable";
 import { Context } from "../../../../../App";
+import { lightSrtFolders, srtFoldersGitHub } from "../../../../../assets/srtFolders";
 import { getMetadataObject } from "../../../../../functions/getMetadataObject";
 import { setPairwiseVizData } from "../../../../../functions/setVisualizationData";
 import { setInitialValues } from "../../../../../functions/setInitialValues";
-import { getVersionMeta } from "../../../../../functions/getVersionMeta";
-import {
-  lightSrtFolders,
-  srtFoldersGitHub,
-} from "../../../../../assets/srtFolders";
-import TextReuseTable from "./TextReuseTable";
+import { downloadCsvData } from "../../../../../services/TextReuseData";
 
 // Text Reuse Data tab in the drawer:
-const TextReuseData = ({ fullData, query }) => {
+const TextReuseData = ({ fullData, query, fullDataLoading }) => {
   const navigate = useNavigate();
   const {
     setMetaData,
@@ -31,7 +28,7 @@ const TextReuseData = ({ fullData, query }) => {
   } = useContext(Context);
 
   // redirect to chart page
-  const handleRedirectedToChart = async (value) => {
+  const handleRedirectToChart = async ({book1, book2, csvUrl}) => {
     setInitialValues({
       dataLoading,
       setIsFileUploaded,
@@ -43,17 +40,18 @@ const TextReuseData = ({ fullData, query }) => {
     });
 
     // generate csv file name
-    const csvFileName =
-      value.tsv_url.split("/")[value.tsv_url.split("/").length - 1];
+    const csvFileName = csvUrl.split("/").pop();
 
     // get book names
     const book_names = csvFileName.split("_");
 
     if (book_names[0] && book_names[1]) {
-      // download pairwise text reuse data filename:
+      /*// downloading pairwise text reuse is not necessary: 
+      // already downloaded in drawer:
       const versionMeta = await getVersionMeta(releaseCode, book_names);
       const book1 = versionMeta.book1;
-      const book2 = versionMeta.book2;
+      const book2 = versionMeta.book2;*/
+
       // First try to download from KITAB webserver:
       let passim_folder = lightSrtFolders[releaseCode];
       let url = `${passim_folder}/${book_names[0]}/${csvFileName}`;
@@ -94,9 +92,10 @@ const TextReuseData = ({ fullData, query }) => {
 
   return (
     <TextReuseTable
-      fullData={fullData}
-      query={query}
-      handleRedirectedToChart={handleRedirectedToChart}
+      b1Metadata={fullData}
+      normalizedQuery={query.toLowerCase().trim()}
+      handleRedirectToChart={handleRedirectToChart}
+      b1MetadataLoading={fullDataLoading}
     />
   );
 };
