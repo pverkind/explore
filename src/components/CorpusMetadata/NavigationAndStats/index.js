@@ -412,7 +412,7 @@ const NavigationAndStats = () => {
                 title={
                   checkedBooks.length < 3 ? pairwiseUrl === null ?
                     "Pairwise File not available for selected books"
-                    : "Download Pairwise Text Reuse Data (larger file, excl. actual text alignments)"
+                    : "Download Pairwise Text Reuse Data (larger file, incl. actual text alignments)"
                     : "Select 2 books to download a file with pairwise text reuse"
                 }
                 placement="top"
