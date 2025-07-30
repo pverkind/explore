@@ -284,11 +284,12 @@ const NavigationAndStats = () => {
 
       <Grid container>
         <Grid
+          
           item
           container
-          sm={1}
-          md={4}
-          lg={6}
+          sm={12}
+          md={6}
+          lg={8}
           sx={{
             display: "flex",
             alignItems: "center",
@@ -327,7 +328,7 @@ const NavigationAndStats = () => {
                     <IconButton
                       size="large"
                       variant="text"
-                      sx={{ fontSize: "15px", color: "#d01f2f", ml: "5px" }}
+                      sx={{ fontSize: "15px", color: "#d01f2f", padding: "10px" }}
                       onClick={() => setCheckedBooks([])}
                     >
                       <i className="fa-regular fa-square-minus"></i>
@@ -344,7 +345,7 @@ const NavigationAndStats = () => {
                 }
               >
                 <IconButton
-                  sx={{ fontSize: "15px", color: "#2863A5", ml: "5px" }}
+                  sx={{ fontSize: "15px", color: "#2863A5", padding: "5px" }}
                   onClick={() => setDisplaySelected(!displaySelected)}
                 >
                   {displaySelected ? (
@@ -356,23 +357,23 @@ const NavigationAndStats = () => {
               </Tooltip>
             </>
           )}
-
+          <>
           <Box>{rows && <DownloadData data={rows} status={status} />}</Box>
 
           {checkedBooks.length === 0 ? (
             ""
           ) : checkedBooks.length === 1 ? (
-            <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
+            <Typography  color="#fbbf24" sx={{ width: "max-content", padding: "5px" }}>
               Select a second book to visualise pairwise text reuse
             </Typography>
           ) : checkedBooks.length < 3 && !showLoadingMessage &&loadingReuseData ? (
             ""
           ) : checkedBooks.length < 3 && showLoadingMessage ? (
-            <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
+            <Typography color="#fbbf24" sx={{ width: "max-content", padding: "5px" }}>
               <CircularProgress size={"15px"} /> Loading text reuse data for selected books...
             </Typography>
           ) : checkedBooks.length < 3 && !loadingReuseData && pairwiseLiteUrl === null ? (
-            <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
+            <Typography color="#fbbf24" sx={{ width: "max-content", padding: "5px" }}>
               No text reuse data available for selected books
             </Typography>
           ) : (
@@ -390,7 +391,7 @@ const NavigationAndStats = () => {
                   <IconButton
                     size="large"
                     variant="text"
-                    sx={{ fontSize: "15px" }}
+                    sx={{ fontSize: "15px", padding: "5px"}}
                     disabled={checkedBooks.length < 3 ? false : true}
                     onClick={() => loadChartFromSelected()}
                   >
@@ -421,7 +422,7 @@ const NavigationAndStats = () => {
                   <IconButton
                     size="large"
                     variant="text"
-                    sx={{ fontSize: "15px" }}
+                    sx={{ fontSize: "15px", padding: "5px"}}
                     disabled={checkedBooks.length < 3 ? false : true}
                     onClick={() => downloadTextReuseData(pairwiseUrl)}
                   >
@@ -451,7 +452,7 @@ const NavigationAndStats = () => {
                   <IconButton
                     size="large"
                     variant="text"
-                    sx={{ fontSize: "15px" }}
+                    sx={{ fontSize: "15px", padding: "5px" }}
                     disabled={checkedBooks.length < 3 ? false : true}
                     onClick={() => downloadTextReuseData(pairwiseLiteUrl)}
                   >
@@ -470,7 +471,7 @@ const NavigationAndStats = () => {
           </>
             
           )}
-
+          </>
           {checkedNotification ? (
             <Box>
               <Typography
@@ -490,10 +491,11 @@ const NavigationAndStats = () => {
 
         {totalRecords ? (
           <Grid
+            
             item
-            sm={1}
-            md={8}
-            lg={6}
+            sm={12}
+            md={6}
+            lg={4}
             sx={{
               display: {
                 xs: "none",
