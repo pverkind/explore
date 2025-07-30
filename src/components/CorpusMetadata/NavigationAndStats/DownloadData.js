@@ -40,8 +40,8 @@ const DownloadData = ({ data, status }) => {
     <Tooltip
       title={
         checkedBooks.length > 0
-          ? "Download selected metadata in csv format"
-          : "Download metadata on this page in csv format"
+          ? "Download selected metadata in tsv format"
+          : "Download metadata on this page in tsv format"
       }
       placement="top"
     >
@@ -54,7 +54,9 @@ const DownloadData = ({ data, status }) => {
           specificData.length !== 0 && (
             <CSVLink
               data={specificData}
-              filename="kitabapps_data.csv"
+              enclosingCharacter={''}
+              separator={"\t"}
+              filename="kitabapps_data.tsv"
               style={{
                 textDecoration: "none",
                 display: "flex",
