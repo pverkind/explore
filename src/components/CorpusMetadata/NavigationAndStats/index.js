@@ -4,31 +4,33 @@ import PaginationComponent from "../../Common/PaginationComponent";
 import DownloadData from "./DownloadData";
 import FilterNavigation from "./FilterNavigation";
 import { Context } from "../../../App";
-import {
-  //getTextReuseBooksTSV,
-  downloadCsvData,
-} from "../../../services/TextReuseData";
-import { useNavigate } from "react-router-dom";
+// import {
+//   //getTextReuseBooksTSV,
+//   // downloadCsvData,
+// } from "../../../services/TextReuseData";
+// import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@mui/material";
 import { useState, useEffect } from "react";
-import { lightSrtFolders, srtFoldersGitHub, srtFolders } from "../../../assets/srtFolders";
+import { 
+  // lightSrtFolders, 
+  srtFoldersGitHub, srtFolders } from "../../../assets/srtFolders";
 import { buildPairwiseCsvURL, loadChartFromUrl } from "../../../utility/Helper"
 
-import { setInitialValues } from "../../../functions/setInitialValues";
-import { getMetadataObject } from "../../../functions/getMetadataObject";
-import { setPairwiseVizData } from "../../../functions/setVisualizationData";
+// import { setInitialValues } from "../../../functions/setInitialValues";
+// import { getMetadataObject } from "../../../functions/getMetadataObject";
+// import { setPairwiseVizData } from "../../../functions/setVisualizationData";
 import { CircularProgress } from "@mui/material";
 
 // import { csv } from "d3";
 
 const NavigationAndStats = () => {
   const {
-    setMetaData,
-    setChartData,
-    setLoadedCsvFile,
-    dataLoading,
-    setDataLoading,
-    setBooks,
+    // setMetaData,
+    // setChartData,
+    // setLoadedCsvFile,
+    // dataLoading,
+    // setDataLoading,
+    // setBooks,
     showFilters,
     totalRecords,
     rows,
@@ -39,14 +41,14 @@ const NavigationAndStats = () => {
     setCheckedBooks,
     releaseCode,
     checkedNotification,
-    setCheckedNotification,
-    setIsOpenDrawer,
-    setBooksAlignment,
-    setIsFileUploaded,
-    setIsError,
-    setUrl,
+    // setCheckedNotification,
+    // setIsOpenDrawer,
+    // setBooksAlignment,
+    // setIsFileUploaded,
+    // setIsError,
+    // setUrl,
   } = useContext(Context);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [displaySelected, setDisplaySelected] = useState(false);
 
   // Default the URLs to null - if null, no download or visualisation will be possible (and we can show a message):

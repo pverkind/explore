@@ -1,22 +1,22 @@
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 import TextReuseTable from "./TextReuseTable";
 import { Context } from "../../../../../App";
-import { lightSrtFolders, srtFoldersGitHub } from "../../../../../assets/srtFolders";
-import { getMetadataObject } from "../../../../../functions/getMetadataObject";
-import { setPairwiseVizData } from "../../../../../functions/setVisualizationData";
+// import { lightSrtFolders, srtFoldersGitHub } from "../../../../../assets/srtFolders";
+// import { getMetadataObject } from "../../../../../functions/getMetadataObject";
+// import { setPairwiseVizData } from "../../../../../functions/setVisualizationData";
 import { setInitialValues } from "../../../../../functions/setInitialValues";
-import { downloadCsvData } from "../../../../../services/TextReuseData";
+// import { downloadCsvData } from "../../../../../services/TextReuseData";
 import { loadChartFromUrl } from "../../../../../utility/Helper";
 
 // Text Reuse Data tab in the drawer:
 const TextReuseData = ({ fullData, query, fullDataLoading }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const {
     setMetaData,
     setChartData,
-    setLoadedCsvFile,
+    // setLoadedCsvFile,
     dataLoading,
     setDataLoading,
     setBooks,
@@ -24,8 +24,8 @@ const TextReuseData = ({ fullData, query, fullDataLoading }) => {
     releaseCode,
     setIsFileUploaded,
     setBooksAlignment,
-    setIsError,
-    setUrl,
+    // setIsError,
+    // setUrl,
   } = useContext(Context);
 
   // load chart in new window - built from the old function that loaded it into the window
