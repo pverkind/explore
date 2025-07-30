@@ -7,7 +7,7 @@ const { GITHUB_BASE_URL, GITHUB_BASE_RAW_URL } = config;
 const loadChartFromUrl = async (releaseCode, idPair) => {
   
   const baseUrl = window.location.origin;
-  const vizUrl = `${baseUrl}/#/visualise/${releaseCode}/?books=${idPair}`;
+  const vizUrl = `${baseUrl}/explore/#/visualise/${releaseCode}/?books=${idPair}`;
   window.open(vizUrl, "_blank");
   
 }
