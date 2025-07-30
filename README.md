@@ -33,7 +33,11 @@ The aim is to create small, short-lived feature branches, and have the main bran
   - clone your fork to your local machine: `git clone https://github.com/<yourGithubUserName>/explore.git`
   - create the connection to the original repo - call it "upstream": `git remote add upstream https://github.com/kitab-project-org/explore.git` 
     if you run the command `git remote -v` now, it should show the remote branch in addition to "origin" - your fork
-* Create a feature branch based on the dev branch of the original repo: `git checkout -b <branchName> upstream/dev` 
+* Create a feature branch based on the dev branch of the original repo:
+  ```
+  git fetch upstream
+  git checkout -b <branchName> upstream/dev
+  ```
 * (do development work, add and commit changes, test locally)
 * Push the changes to your fork: `git push origin <branchName>`
 * Stage a test instance of the app on your fork's GitHub pages or the Azure staging website (see below)
