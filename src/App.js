@@ -136,8 +136,8 @@ function App() {
   const bookSectionRef = useRef();
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [showTickSizeInput, setShowTickSizeInput] = useState(false);
-  const [tickFontSize, setTickFontSize] = useState(12);
-  const [axisLabelFontSize, setAxisLabelFontSize] = useState(12);
+  const [tickFontSize, setTickFontSize] = useState(16);
+  const [axisLabelFontSize, setAxisLabelFontSize] = useState(16);
   const [outputImageWidth, setOutputImageWidth] = useState(120);
   const [dpi, setDpi] = useState(300);
   const [includeMetaInDownload, setIncludeMetaInDownload] = useState("no");
@@ -177,7 +177,7 @@ function App() {
   const [showOptions, setShowOptions] = useState(false);
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const [url, setUrl] = useState("");
-  const [includeURL, setIncludeURL] = useState(true);
+  const [includeURL, setIncludeURL] = useState(false);
   const [defaultMargins, setDefaultMargins] = useState({ top: 40, right: 20, bottom: 20, left: 60 });
   const [visMargins, setVisMargins] = useState({ top: 40, right: 20, bottom: 20, left: 60 });
   const [textAvailable, setTextAvailable] = useState(true);
