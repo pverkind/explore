@@ -282,7 +282,7 @@ const VisualisationPage = () => {
     if (failedBooks.length > 0) {
       setDataLoading({ ...dataLoading, uploading: false });
       setIsError(true);
-      setErrorType('The book ids in your URL do not match any books in the KITAB corpus. Please check your URL and try again. Failed ids: ' + failedBooks.join(", "));
+      setErrorType('Some book Ids in your pairwise URL do not match books in the KITAB corpus. Please check your URL and try again. Failed Ids: ' + failedBooks.join(", "));
       setIsLoading(false);
 
     } else if (book_names.length === 1 || book_names[1] === "all") {
