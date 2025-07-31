@@ -4,6 +4,33 @@ const { GITHUB_BASE_URL, GITHUB_BASE_RAW_URL } = config;
 
 
 /**
+ * Testing functionality to make a server fetch fail
+ * To use - call enableMockFetch({ failForMatch: srtFolders[releaseCode] }) to fail for a specific release code
+ */
+let originalFetch = null;
+
+function enableMockFetch({ failForMatch = "" } = {}) {
+  if (originalFetch) return; // already mocked
+
+  originalFetch = global.fetch;
+
+  global.fetch = async (url, options) => {
+    if (failForMatch && url.includes(failForMatch)) {
+      console.warn(`[MockFetch] Forcing failure for: ${url}`);
+      throw new Error("Simulated fetch failure");
+    }
+
+    // fallback behavior: all URLs fail
+    if (!failForMatch) {
+      console.warn(`[MockFetch] Forcing global failure: ${url}`);
+      throw new Error("Simulated fetch failure");
+    }
+
+    return originalFetch(url, options); // fallback to real fetch
+  };
+}
+
+/**
  * Help to try catch to ensure we return false in all cases of invalid urls
  * @param {String} url The URL to check
  * @returns {Boolean} True if the URL is valid, false otherwise
