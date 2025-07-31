@@ -1,6 +1,7 @@
-import { srtFolders, lightSrtFolders} from "../assets/srtFolders"
+import { srtFolders, lightSrtFolders, srtFoldersGitHub} from "../assets/srtFolders"
 import { config } from "../config";
 const { GITHUB_BASE_URL, GITHUB_BASE_RAW_URL } = config;
+
 
 /**
  * Help to try catch to ensure we return false in all cases of invalid urls
@@ -20,41 +21,42 @@ const urlExists = async (url) => {
 /**
  * Check the response for a pairwise csv - fallback to GitHub if not found
  * @param {String} releaseCode OpenITI release version code
- * @param {String} book1Code code of book 1
- * @param {String} book2Code code of book 2
+ * @param {String} book1 metadata obj book 1
+ * @param {String} book2 metadata obj book 2
  * @param {Boolean} full If true, check for full text reuse data
  *  
- * @returns {Object} {"pairwiseUrl": String, "pairwiseLiteUrl": String}
- * If the response fails for either URL, it will return null for that field
+ * @returns {Object} {"pairwiseUrl": String, "pairwiseLiteUrl": String, "githubUrl": boolean}
+ * If the response fails for either URL, it will return null for that field. If it returns a githubUrl, then githubUrl will be true
  */
 
-const checkPairwiseCsvResponse = async (releaseCode, book1Code, book2Code, full=false) => {
+const checkPairwiseCsvResponse = async (releaseCode, book1, book2, full=false) => {
   // Set pairwise lite URL as null - in case we do not find it
-  const pairwiseLiteUrl = null
+  const pairwiseLiteUrl = null;
   // If full is true check for full and set full and lite URLs accordingly
   if (full) {
-    const pairwiseFullUrl = await buildPairwiseCsvURL(releaseCode, book1Code, book2Code, false);
+    const pairwiseFullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
     const urlRes = await urlExists(pairwiseFullUrl);
-    if (urlRes.ok) {
-      const pairwiseLiteUrl = await buildPairwiseCsvURL(releaseCode, book1Code, book2Code, true);
-      return { pairwiseUrl: pairwiseFullUrl, pairwiseLiteUrl: pairwiseLiteUrl};
+    if (urlRes) {
+      console.log("Full text reuse data found at: " + pairwiseFullUrl);
+      const pairwiseLiteUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, true);
+      return { pairwiseUrl: pairwiseFullUrl, pairwiseLiteUrl: pairwiseLiteUrl, githubUrl: false};
     }
   } else {
     // Otherwise just check pairwise URL
-    const pairwiseLiteUrl = await buildPairwiseCsvURL(releaseCode, book1Code, book2Code, true);
+    const pairwiseLiteUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, true);
     const urlRes = await urlExists(pairwiseLiteUrl);
-    if (urlRes.ok) {
-      return { pairwiseUrl: null, pairwiseLiteUrl: pairwiseLiteUrl};
+    if (urlRes) {
+      return { pairwiseUrl: null, pairwiseLiteUrl: pairwiseLiteUrl, githubUrl: false};
     }
   }
   // If we have not returned yet, the response failed so we check GitHub (just lite URL)
-  const githubUrl = srtFoldersGitHub[releaseCode] + `${book1Code}/${book1Code}_${book2Code}.csv`;
+  const githubUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false, true);
   const githubRes = await urlExists(githubUrl);
-  if (githubRes.ok) {
-    return { pairwiseUrl: null, pairwiseLiteUrl: githubUrl };
+  if (githubRes) {
+    return { pairwiseUrl: null, pairwiseLiteUrl: githubUrl, githubUrl: true };
   } else {
     // If both responses fail, return null for both URLs}
-    return { pairwiseUrl: null, pairwiseLiteUrl: pairwiseLiteUrl };
+    return { pairwiseUrl: null, pairwiseLiteUrl: pairwiseLiteUrl, githubUrl: false };
   }
 };
 
@@ -97,16 +99,28 @@ const getVersionIDfromURL = (versionURL, includeExt=true) => {
    * @param {Object} b1Data full metadata for book 1
    * @param {Object} b2Data full metadata for book 2
    * @param {Boolean} light Download the light or full text reuse data csv
+   * @param {Boolean} githubUrl If true, use the GitHub URL instead of the KITAB webserver URL
    * 
    * @returns String (URL of the pairwise CSV file)
   */
-  const buildPairwiseCsvURL = async (releaseCode, b1Data, b2Data, light=false) => {
+  const buildPairwiseCsvURL = async (releaseCode, b1Data, b2Data, light=false, githubUrl = false) => {
     // get the IDs (incl. extension) for both books:
     const b1ID = getVersionIDfromURL(b1Data.release_version.url, true);
     const b2ID = getVersionIDfromURL(b2Data.release_version.url, true);
-    const baseURL = light ? lightSrtFolders[releaseCode] : srtFolders[releaseCode];
-    // build the URL:
-    return `${baseURL}/${b1ID}/${b1ID}_${b2ID}.csv`;
+
+    // if githubUrl is true then we use that for the base URL - otherwise base URL is from webserver
+    if (githubUrl) {
+      const baseURL = srtFoldersGitHub[releaseCode];
+      
+      // build the URL:
+      return `${baseURL}/${b1ID}/${b1ID}_${b2ID}.csv`;
+    } else {
+      const baseURL = light ? lightSrtFolders[releaseCode] : srtFolders[releaseCode];
+      
+      // build the URL:
+      return `${baseURL}/${b1ID}/${b1ID}_${b2ID}.csv`;
+    } 
+
   }
 
 /**
@@ -426,5 +440,6 @@ export {
   getVersionIDfromURL,
   buildPairwiseCsvURL,
   loadChartFromUrl,
-  checkPairwiseCsvResponse
+  checkPairwiseCsvResponse,
+  
 };
