@@ -23,17 +23,21 @@ The website is live at https://kitab-project.org/explore
   a [GitHub Actions script](https://github.com/kitab-project-org/explore/blob/uat/.github/workflows/azure-static-web-apps-witty-bay-0dafe9a10.yml) 
   builds the stable website and deploys to a test website on Azure (https://witty-bay-0dafe9a10.4.azurestaticapps.net/)
 
-## Git Workflow
+## Git Workflow for contributors
 NB: we use a forking workflow so you can test the GitHub Pages deployment on your own GitHub Pages site
 
 The aim is to create small, short-lived feature branches, and have the main branch continuously updated.
 
 * (only the first time):
-  - Fork the repo https://kitab-project.org/explore on GitHub
+  - Fork the repo https://github.com/kitab-project-org/explore/ on GitHub
   - clone your fork to your local machine: `git clone https://github.com/<yourGithubUserName>/explore.git`
   - create the connection to the original repo - call it "upstream": `git remote add upstream https://github.com/kitab-project-org/explore.git` 
     if you run the command `git remote -v` now, it should show the remote branch in addition to "origin" - your fork
-* Create a feature branch based on the dev branch of the original repo: `git checkout -b <branchName> upstream/dev` 
+* Create a feature branch based on the dev branch of the original repo:
+  ```
+  git fetch upstream
+  git checkout -b <branchName> upstream/dev
+  ```
 * (do development work, add and commit changes, test locally)
 * Push the changes to your fork: `git push origin <branchName>`
 * Stage a test instance of the app on your fork's GitHub pages or the Azure staging website (see below)
@@ -57,7 +61,7 @@ The aim is to create small, short-lived feature branches, and have the main bran
   - In the fork on your GitHub page, go to Actions, and choose "Deploy to Github Pages from current branch" in the left-hand column
   - Then, click the "Run workflow" button, choose the name of your feature branch, and click the green "Run workflow" button
   - (only the first time: go to the Settings of your GitHub pages fork, choose "Pages", and in the "Branch" section under "Build and deployment", set the branch to "gh-pages" and the folder to "/ (root)".)
-  - The website should now be deployed to https://<yourGithubUserName>.github.io/explore
+  - The website should now be deployed to https://\<yourGithubUserName\>.github.io/explore
 * On an azure server:
   - Pull the changes into the **uat** branch; this will automatically build the static pages and deploy them to an azure page: https://witty-bay-0dafe9a10.4.azurestaticapps.net/
 
@@ -67,74 +71,10 @@ The aim is to create small, short-lived feature branches, and have the main bran
 * In the kitab-project-org GitHub page, go to [Actions](https://github.com/kitab-project-org/explore/actions), and choose "Deploy to Github Pages from current branch" in the left-hand column
 * Click the "Run workflow" button, select the "main" branch from the dropdown, and click the green "Run workflow" button
 
-## Getting Started
-
-To get started with KITAB explore, follow these steps:
-
-1. **Clone the Repository:**
-
-   ```bash
-   git clone https://github.com/kitab-project-org/explore.git
-   ```
-
-2. **Install Dependencies:**
-
-   ```bash
-   cd explore
-   npm install
-   ```
-
-3. **Run the Application:**
-
-   ```bash
-   npm start
-   ```
-
-4. **Access the Application:**
-
-   Open your web browser and navigate to http://localhost:8080.
-
-## Github Pages Build Process
-
-To build the file for gh-pages, follow these steps:
-
-1. **Install Github Pages:**
-
-   ```bash
-   npm install gh-pages
-   ```
-
-2. **Add Scripts Inside package.json File:**
-
-   "predeploy": "npm run build",
-   "deploy": "gh-pages -d build",
-
-3. **Build And Publish:**
-   try to build the app with
-
-   ```bash
-   npm run build
-   ```
-
-   then run this code:
-
-   ```bash
-   npm run deploy
-   ```
-
-4. **Live Link:**
-
-You will get the live link at this location - https://your-github-username.github.io/repo-name/
 
 ## Contributing
 
-We welcome contributions to enhance the library and improve its features. To contribute:
-
-    Fork the repository.
-    Create a new branch for your feature: git checkout -b feature-name.
-    Commit your changes: git commit -m 'Add some feature'.
-    Push to the branch: git push origin feature-name.
-    Submit a pull request.
+We welcome contributions to enhance the library and improve its features. If you would like to contribute, contact the KITAB team.
 
 ## Issues
 
