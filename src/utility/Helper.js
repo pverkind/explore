@@ -2,8 +2,67 @@ import { srtFolders, lightSrtFolders} from "../assets/srtFolders"
 import { config } from "../config";
 const { GITHUB_BASE_URL, GITHUB_BASE_RAW_URL } = config;
 
+/**
+ * Help to try catch to ensure we return false in all cases of invalid urls
+ * @param {String} url The URL to check
+ * @returns {Boolean} True if the URL is valid, false otherwise
+ */
 
-// Load the pairwise visualisation through a URL - builds the URL and opens it in a new tab
+const urlExists = async (url) => {
+  try {
+    const response = await fetch(url, { method: "HEAD" });
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
+ * Check the response for a pairwise csv - fallback to GitHub if not found
+ * @param {String} releaseCode OpenITI release version code
+ * @param {String} book1Code code of book 1
+ * @param {String} book2Code code of book 2
+ * @param {Boolean} full If true, check for full text reuse data
+ *  
+ * @returns {Object} {"pairwiseUrl": String, "pairwiseLiteUrl": String}
+ * If the response fails for either URL, it will return null for that field
+ */
+
+const checkPairwiseCsvResponse = async (releaseCode, book1Code, book2Code, full=false) => {
+  // Set pairwise lite URL as null - in case we do not find it
+  const pairwiseLiteUrl = null
+  // If full is true check for full and set full and lite URLs accordingly
+  if (full) {
+    const pairwiseFullUrl = await buildPairwiseCsvURL(releaseCode, book1Code, book2Code, false);
+    const urlRes = await urlExists(pairwiseFullUrl);
+    if (urlRes.ok) {
+      const pairwiseLiteUrl = await buildPairwiseCsvURL(releaseCode, book1Code, book2Code, true);
+      return { pairwiseUrl: pairwiseFullUrl, pairwiseLiteUrl: pairwiseLiteUrl};
+    }
+  } else {
+    // Otherwise just check pairwise URL
+    const pairwiseLiteUrl = await buildPairwiseCsvURL(releaseCode, book1Code, book2Code, true);
+    const urlRes = await urlExists(pairwiseLiteUrl);
+    if (urlRes.ok) {
+      return { pairwiseUrl: null, pairwiseLiteUrl: pairwiseLiteUrl};
+    }
+  }
+  // If we have not returned yet, the response failed so we check GitHub (just lite URL)
+  const githubUrl = srtFoldersGitHub[releaseCode] + `${book1Code}/${book1Code}_${book2Code}.csv`;
+  const githubRes = await urlExists(githubUrl);
+  if (githubRes.ok) {
+    return { pairwiseUrl: null, pairwiseLiteUrl: githubUrl };
+  } else {
+    // If both responses fail, return null for both URLs}
+    return { pairwiseUrl: null, pairwiseLiteUrl: pairwiseLiteUrl };
+  }
+};
+
+
+/** Load the pairwise visualisation through a URL - builds the URL and opens it in a new tab
+   * @param {String} releaseCode OpenITI release version code
+   * @param {String} idPair The pair of book IDs to visualise, e.g. "book1_book2"
+*/
 const loadChartFromUrl = async (releaseCode, idPair) => {
   
   const baseUrl = window.location.origin;
@@ -366,5 +425,6 @@ export {
   getVersionIDfromURI,
   getVersionIDfromURL,
   buildPairwiseCsvURL,
-  loadChartFromUrl
+  loadChartFromUrl,
+  checkPairwiseCsvResponse
 };
