@@ -123,6 +123,13 @@ const VisualisationPage = () => {
     setUrl,
     defaultReleaseCode,
     setMainVersionCode,
+    setVisMargins, 
+    defaultMargins, 
+    includeURL, 
+    includeMetaInDownload, 
+    metaPositionInDownload,
+    axisLabelFontSize,
+    tickFontSize
   } = useContext(Context);
 
   const [isPairwiseViz, setIsPairwiseViz] = useState(false);
@@ -130,6 +137,39 @@ const VisualisationPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { version } = useParams();
+
+  useEffect(() => {
+    const updateMargins = () => {
+      const margins = { ...defaultMargins };
+      if (includeURL) {
+        console.log("Making space for URL");
+        margins.top += Math.max(axisLabelFontSize, tickFontSize);
+        //margins.top += tickFontSize;
+        console.log(margins);
+      }
+      // update the margins of the graph:
+      if (includeMetaInDownload !== "no") {
+        if (metaPositionInDownload === "left") {
+          margins.left += Math.max(axisLabelFontSize, tickFontSize);
+          //margins.left += tickFontSize;
+        } else {
+          margins.top += Math.max(axisLabelFontSize, tickFontSize);
+          //margins.top += tickFontSize;
+        }
+      }
+      setVisMargins(margins);
+      console.log(margins);
+    };
+    updateMargins();
+  }, [
+    setVisMargins, 
+    defaultMargins, 
+    includeURL, 
+    includeMetaInDownload, 
+    metaPositionInDownload,
+    axisLabelFontSize,
+    tickFontSize
+  ]);
 
   const handleUpload = async (upload) => {
     setInitialValues({

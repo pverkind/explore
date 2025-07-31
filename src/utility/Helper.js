@@ -339,6 +339,37 @@ function bisectLeft(array, value) {
 	return low;
 }
 
+
+/*
+ * wrap a string into lines based on a maximum 
+ * number of characters per line
+*/
+function wrapText(text, maxChars) {
+  const words = text.split(" ");
+  const lines = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    // If adding this word would exceed the limit
+    if ((currentLine + " " + word).trim().length > maxChars) {
+      // Push the current line and start a new one
+      lines.push(currentLine.trim());
+      currentLine = word;
+    } else {
+      // Otherwise, add the word to the current line
+      currentLine += " " + word;
+    }
+  }
+
+  // Push the last line
+  if (currentLine) {
+    lines.push(currentLine.trim());
+  }
+
+  return lines;
+}
+
+
 export {
   getHighestValueInArrayOfObjects,
   calculateTooltipPos,
@@ -358,5 +389,6 @@ export {
   bisectLeft, 
   getVersionIDfromURI,
   getVersionIDfromURL,
-  buildPairwiseCsvURL
+  buildPairwiseCsvURL,
+  wrapText
 };
