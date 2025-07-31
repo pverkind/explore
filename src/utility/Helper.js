@@ -3,7 +3,14 @@ import { config } from "../config";
 const { GITHUB_BASE_URL, GITHUB_BASE_RAW_URL } = config;
 
 
-
+// Load the pairwise visualisation through a URL - builds the URL and opens it in a new tab
+const loadChartFromUrl = async (releaseCode, idPair) => {
+  
+  const baseUrl = window.location.origin;
+  const vizUrl = `${baseUrl}/explore/#/visualise/${releaseCode}/?books=${idPair}`;
+  window.open(vizUrl, "_blank");
+  
+}
 
 const pad = (n, width, z) => {
   z = z || "0";
@@ -358,5 +365,6 @@ export {
   bisectLeft, 
   getVersionIDfromURI,
   getVersionIDfromURL,
-  buildPairwiseCsvURL
+  buildPairwiseCsvURL,
+  loadChartFromUrl
 };

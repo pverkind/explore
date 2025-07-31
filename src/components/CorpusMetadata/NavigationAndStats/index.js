@@ -4,31 +4,33 @@ import PaginationComponent from "../../Common/PaginationComponent";
 import DownloadData from "./DownloadData";
 import FilterNavigation from "./FilterNavigation";
 import { Context } from "../../../App";
-import {
-  //getTextReuseBooksTSV,
-  downloadCsvData,
-} from "../../../services/TextReuseData";
-import { useNavigate } from "react-router-dom";
+// import {
+//   //getTextReuseBooksTSV,
+//   // downloadCsvData,
+// } from "../../../services/TextReuseData";
+// import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@mui/material";
 import { useState, useEffect } from "react";
-import { lightSrtFolders, srtFoldersGitHub, srtFolders } from "../../../assets/srtFolders";
-import { buildPairwiseCsvURL } from "../../../utility/Helper"
+import { 
+  // lightSrtFolders, 
+  srtFoldersGitHub, srtFolders } from "../../../assets/srtFolders";
+import { buildPairwiseCsvURL, loadChartFromUrl } from "../../../utility/Helper"
 
-import { setInitialValues } from "../../../functions/setInitialValues";
-import { getMetadataObject } from "../../../functions/getMetadataObject";
-import { setPairwiseVizData } from "../../../functions/setVisualizationData";
+// import { setInitialValues } from "../../../functions/setInitialValues";
+// import { getMetadataObject } from "../../../functions/getMetadataObject";
+// import { setPairwiseVizData } from "../../../functions/setVisualizationData";
 import { CircularProgress } from "@mui/material";
 
 // import { csv } from "d3";
 
 const NavigationAndStats = () => {
   const {
-    setMetaData,
-    setChartData,
-    setLoadedCsvFile,
-    dataLoading,
-    setDataLoading,
-    setBooks,
+    // setMetaData,
+    // setChartData,
+    // setLoadedCsvFile,
+    // dataLoading,
+    // setDataLoading,
+    // setBooks,
     showFilters,
     totalRecords,
     rows,
@@ -39,14 +41,14 @@ const NavigationAndStats = () => {
     setCheckedBooks,
     releaseCode,
     checkedNotification,
-    setCheckedNotification,
-    setIsOpenDrawer,
-    setBooksAlignment,
-    setIsFileUploaded,
-    setIsError,
-    setUrl,
+    // setCheckedNotification,
+    // setIsOpenDrawer,
+    // setBooksAlignment,
+    // setIsFileUploaded,
+    // setIsError,
+    // setUrl,
   } = useContext(Context);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [displaySelected, setDisplaySelected] = useState(false);
 
   // Default the URLs to null - if null, no download or visualisation will be possible (and we can show a message):
@@ -54,6 +56,7 @@ const NavigationAndStats = () => {
   const [pairwiseUrl, setPairwiseUrl] = useState(null);
   const [pairwiseFileName, setPairwiseFileName] = useState(null);
   const [githubUrl, setGithubUrl] = useState(false);
+  const [idPair, setIdPair] = useState(null);
   const [loadingReuseData, setLoadingReuseData] = useState(false);
   const [showLoadingMessage, setShowLoadingMessage] = useState(false);
 
@@ -104,6 +107,9 @@ const NavigationAndStats = () => {
         const fullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
         const csvFileName = `${book1Code}_${book2Code}.csv`;
         setPairwiseFileName(csvFileName);
+
+        const idPair = `${book1Code}_${book2Code}`;
+        setIdPair(idPair);
 
         // Check the URLs - if they are valid then set the state variables
         // If the URL is not valid, then set the state variable to null
@@ -176,81 +182,86 @@ const NavigationAndStats = () => {
       }
     } 
   }
+
+
   
 
-  // Load the book visualisation from the checked versions in metadata table:
-  const loadChartFromSelected = async () => {
-    // reset context values:
-    setIsOpenDrawer(false);
-    setInitialValues({
-      dataLoading,
-      setDataLoading,
-      setIsFileUploaded,
-      setMetaData,
-      setChartData,
-      setBooksAlignment,
-      setBooks,
-      setLoadedCsvFile,
-    });
+  // Below function is the original one that was used to load 
+  // the pairwise visualisation from the checked books in the metadata table
+  // It loads the visualisation in the same window - and duplicates the data loading - replaced by loadChartFromUrl
+  // // Load the book visualisation from the checked versions in metadata table:
+  // const loadChartFromSelected = async () => {
+  //   // reset context values:
+  //   setIsOpenDrawer(false);
+  //   setInitialValues({
+  //     dataLoading,
+  //     setDataLoading,
+  //     setIsFileUploaded,
+  //     setMetaData,
+  //     setChartData,
+  //     setBooksAlignment,
+  //     setBooks,
+  //     setLoadedCsvFile,
+  //   });
 
-    // prepare the metadata for both book versions:
-    const book1 = checkedBooks[0];
-    const book2 = checkedBooks[1];
+  //   // prepare the metadata for both book versions:
+  //   const book1 = checkedBooks[0];
+  //   const book2 = checkedBooks[1];
 
-    // build the link to the text reuse pair:
-    const book1Filename = book1?.release_version?.url.split("/").slice(-1)[0];
-    const book1Code = book1Filename.split(".").slice(2).join(".");
-    const book2Filename = book2?.release_version?.url.split("/").slice(-1)[0];
-    const book2Code = book2Filename.split(".").slice(2).join(".");
-    let srtFolder = lightSrtFolders[releaseCode];
-    const csvFileName = `${book1Code}_${book2Code}.csv`;
-    let csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
+  //   // build the link to the text reuse pair:
+  //   const book1Filename = book1?.release_version?.url.split("/").slice(-1)[0];
+  //   const book1Code = book1Filename.split(".").slice(2).join(".");
+  //   const book2Filename = book2?.release_version?.url.split("/").slice(-1)[0];
+  //   const book2Code = book2Filename.split(".").slice(2).join(".");
+  //   let srtFolder = lightSrtFolders[releaseCode];
+  //   const csvFileName = `${book1Code}_${book2Code}.csv`;
+  //   let csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
 
-    console.log("PairwiseLitUrl: ", pairwiseLiteUrl);
+  //   console.log("PairwiseLitUrl: ", pairwiseLiteUrl);
 
-    // Download the pairwise text reuse data from the KITAB webserver:
-    let CSVFile = await downloadCsvData(pairwiseLiteUrl);
-    setLoadedCsvFile(CSVFile);
+  //   // Download the pairwise text reuse data from the KITAB webserver:
+  //   let CSVFile = await downloadCsvData(pairwiseLiteUrl);
+  //   setLoadedCsvFile(CSVFile);
 
-    // if this fails: try to download it from GitHub:
-    if (CSVFile instanceof Error) {
-      srtFolder = srtFoldersGitHub[releaseCode];
-      csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
-      CSVFile = await downloadCsvData(csvUrl);
-    }
+  //   // if this fails: try to download it from GitHub:
+  //   if (CSVFile instanceof Error) {
+  //     srtFolder = srtFoldersGitHub[releaseCode];
+  //     csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
+  //     CSVFile = await downloadCsvData(csvUrl);
+  //   }
 
-    if (Error.prototype.isPrototypeOf(CSVFile)) {
-      // If the csv file is not found on the server, show an error message:
-      setCheckedNotification("Data Not Available: " + csvUrl);
-      setTimeout(() => {
-        setCheckedNotification("");
-      }, 10000);
-      return null;
-    } else {
-      // show the visualization
-      setPairwiseVizData({
-        book1,
-        book2,
-        CSVFile,
-        dataLoading,
-        setDataLoading,
-        setMetaData,
-        releaseCode,
-        getMetadataObject,
-        setChartData,
-        setIsError,
-        setIsFileUploaded,
-        navigate,
-        csvFileName,
-        setUrl,
-      });
-      //showPairwiseData({csvFileName, CSVFile, book1, book2, releaseCode,
-      //            setChartData, setIsError, dataLoading, setDataLoading, navigate});
-      // stop the spinners:
-      setIsFileUploaded(true);
-      setDataLoading({ ...dataLoading, uploading: false, chart: false });
-    }
-  };
+  //   if (Error.prototype.isPrototypeOf(CSVFile)) {
+  //     // If the csv file is not found on the server, show an error message:
+  //     setCheckedNotification("Data Not Available: " + csvUrl);
+  //     setTimeout(() => {
+  //       setCheckedNotification("");
+  //     }, 10000);
+  //     return null;
+  //   } else {
+  //     // show the visualization
+  //     setPairwiseVizData({
+  //       book1,
+  //       book2,
+  //       CSVFile,
+  //       dataLoading,
+  //       setDataLoading,
+  //       setMetaData,
+  //       releaseCode,
+  //       getMetadataObject,
+  //       setChartData,
+  //       setIsError,
+  //       setIsFileUploaded,
+  //       navigate,
+  //       csvFileName,
+  //       setUrl,
+  //     });
+  //     //showPairwiseData({csvFileName, CSVFile, book1, book2, releaseCode,
+  //     //            setChartData, setIsError, dataLoading, setDataLoading, navigate});
+  //     // stop the spinners:
+  //     setIsFileUploaded(true);
+  //     setDataLoading({ ...dataLoading, uploading: false, chart: false });
+  //   }
+  // };
 
   const handleChecked = (value) => {
     const filter = checkedBooks.filter((item) => {
@@ -393,7 +404,7 @@ const NavigationAndStats = () => {
                     variant="text"
                     sx={{ fontSize: "15px", padding: "5px"}}
                     disabled={checkedBooks.length < 3 ? false : true}
-                    onClick={() => loadChartFromSelected()}
+                    onClick={() => loadChartFromUrl(releaseCode, idPair)}
                   >
                     {checkedBooks.length < 3 ? (
                       <i
