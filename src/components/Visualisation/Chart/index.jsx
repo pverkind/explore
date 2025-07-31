@@ -7,7 +7,7 @@ import VisualizationHeader from "../SectionHeader/VisualizationHeader";
 import { Context } from "../../../App";
 import { extractAlignment } from "../../../functions/alignmentFunctions";
 import { getMilestoneText } from "../../../functions/getMilestoneText";
-import { getHighestValueInArrayOfObjects, wrapText } from "../../../utility/Helper";
+import { getHighestValueInArrayOfObjects, wrapText, getMetaLabel } from "../../../utility/Helper";
 import * as d3 from "d3";
 
 
@@ -40,6 +40,7 @@ const Visual = (props) => {
     axisLabelFontSize,
     tickFontSize,
     showDownloadOptions,
+    defaultMargins
   } = useContext(Context);
 
   const [toggle, setToggle] = useState(false);
@@ -188,10 +189,19 @@ const Visual = (props) => {
   function setLayout() {
     outerWidth = chartBox.offsetWidth;
     innerWidth = outerWidth - visMargins.left - visMargins.right;
-    outerHeight = startOuterHeight + visMargins.top + visMargins.bottom;
+    outerHeight = startOuterHeight + visMargins.top + visMargins.bottom - defaultMargins.top - defaultMargins.bottom;
+    //outerHeight = startOuterHeight
     innerHeight = outerHeight - visMargins.top - visMargins.bottom;
     width = innerWidth - padding.left - padding.right;
     height = innerHeight - 20;
+    //height = innerHeight;
+    console.log(`outerWidth: ${outerWidth}`);
+    console.log(`innerWidth: ${innerWidth}`);
+    console.log(`outerHeight: ${outerHeight}`);
+    console.log(`innerHeight: ${innerHeight}`);
+    console.log(`width: ${width}`);
+    console.log(`height: ${height}`);
+    console.log(visMargins);
 
     svgD3.attr("width", outerWidth - 30).attr("height", outerHeight);
 
@@ -236,10 +246,11 @@ const Visual = (props) => {
     ];
 
     if (showDownloadOptions){
+      const lineHeight = Math.max(tickFontSize, axisLabelFontSize) * 1.3;
       if (includeURL) {
         svgD3.append("text")
           .attr("x", visMargins.left)             
-          .attr("y", tickFontSize)  // replace with axisLabelFontSize
+          .attr("y", lineHeight)  // replace with axisLabelFontSize
           .attr("text-anchor", "left")  
           .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
           .style("text-decoration", "underline")  
@@ -249,51 +260,31 @@ const Visual = (props) => {
         // get the metadata to be displayed for each book:
         const b1 = isFlipped ? metaData?.book2 : metaData?.book1;
         const b2 = isFlipped ? metaData?.book1 : metaData?.book2;
-        let textContentb1;
-        let textContentb2;
-        switch (includeMetaInDownload) {
-          case "author":
-            textContentb1 = b1?.bookAuthor;
-            textContentb2 = b2?.bookAuthor;
-            break;
-          case "title":
-            textContentb1 = b1?.bookTitle?.label;
-            textContentb2 = b2?.bookTitle?.label;
-            break;
-          case "author+title":
-            textContentb1 = `${b1?.bookAuthor}, ${b1?.bookTitle?.label}`;
-            textContentb2 = `${b2?.bookAuthor}, ${b2?.bookTitle?.label}`;
-            break;
-          case "versionCode":
-            textContentb1 = b1?.versionCode;
-            textContentb2 = b2?.versionCode;
-            break;
-          default:
-            console.log("unexpected value: "+includeMetaInDownload);
-        }
+        let textContentb1 = getMetaLabel(b1, includeMetaInDownload);
+        let textContentb2 = getMetaLabel(b2, includeMetaInDownload);
+        
         if (metaPositionInDownload === "left") {
-          // TODO: wrap the label:
           const avgCharWidth = Math.max(tickFontSize, axisLabelFontSize) * 0.55;
           const maxChars = Math.floor(0.4*innerHeight/avgCharWidth);
           console.log("Max. "+maxChars+" per line!");
           const labelLinesb1 = wrapText(textContentb1, maxChars);
           console.log(labelLinesb1);
           // Add b1 metadata at the top of the Y axis:
-          let space = axisLabelFontSize;
+          let space = lineHeight;
           //textContentb1.split(", ").forEach((textContent) => {
           labelLinesb1.forEach((textContent) => {
             svgD3.append("text")
               .attr("transform", "rotate(-90)")
               //.attr("x", (-innerHeight)/3 - visMargins.top)
-              .attr("x", -200)
+              .attr("x", -150 - visMargins.top)  // 150 being the size of the Y axis
               .attr("y", space)  
               .attr("text-anchor", "start")  
               .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
               .text(textContent);
-          space += 2*axisLabelFontSize;
+          space += lineHeight;
           })
           // Add b2 metadata at the bottom of the Y axis:
-          space = axisLabelFontSize;
+          space = lineHeight;
           //textContentb1.split(", ").forEach((textContent) => {
           const labelLinesb2 = wrapText(textContentb2, maxChars);
           console.log(labelLinesb2);
@@ -301,25 +292,25 @@ const Visual = (props) => {
             svgD3.append("text")
               .attr("transform", "rotate(-90)")
               //.attr("x", -innerHeight + visMargins.top) 
-              .attr("x", -innerHeight + visMargins.top / 2) 
+              .attr("x", -450 - visMargins.top) 
               .attr("y", space)  
               .attr("text-anchor", "start")  
               .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
               .text(textContent);
-            space += 2*axisLabelFontSize;
+            space += lineHeight;
           })
         } else {
           // Add b1 metadata at the top:
           svgD3.append("text")
             .attr("x", visMargins.left)             
-            .attr("y", 2*Math.max(tickFontSize, axisLabelFontSize))  // replace with axisLabelFontSize
+            .attr("y", 3*lineHeight)  // replace with axisLabelFontSize
             .attr("text-anchor", "left")  
             .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
             .text(textContentb1);
           // add b2 metadata at the bottom:
           svgD3.append("text")
             .attr("x", visMargins.left)             
-            .attr("y", innerHeight + 2*Math.max(tickFontSize, axisLabelFontSize))  // replace with axisLabelFontSize
+            .attr("y", outerHeight - lineHeight)  // replace with axisLabelFontSize
             .attr("text-anchor", "left")  
             .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
             .text(textContentb2);
@@ -990,7 +981,7 @@ const Visual = (props) => {
   useEffect(() => {
     normalChart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visMargins, axisLabelFontSize, tickFontSize, showDownloadOptions]);
+  }, [visMargins, axisLabelFontSize, tickFontSize, showDownloadOptions, includeURL]);
 
   return (
     <>
