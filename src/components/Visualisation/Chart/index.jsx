@@ -246,7 +246,8 @@ const Visual = (props) => {
     ];
 
     if (showDownloadOptions){
-      const lineHeight = Math.max(tickFontSize, axisLabelFontSize) * 1.3;
+      const charHeight = Math.max(tickFontSize, axisLabelFontSize);
+      const lineHeight = charHeight * 1.3;
       if (includeURL) {
         svgD3.append("text")
           .attr("x", visMargins.left)             
@@ -264,34 +265,36 @@ const Visual = (props) => {
         let textContentb2 = getMetaLabel(b2, includeMetaInDownload);
         
         if (metaPositionInDownload === "left") {
-          const avgCharWidth = Math.max(tickFontSize, axisLabelFontSize) * 0.55;
-          const maxChars = Math.floor(0.4*innerHeight/avgCharWidth);
-          console.log("Max. "+maxChars+" per line!");
+          // in order to put the metadata along the Y axis,
+          // we may need to break it into lines. 
+
+          // First we calculate the average number of characters
+          // we can fit in the space (the Y axis is 150px high):
+          const avgCharWidth = charHeight * 0.55;
+          const maxChars = Math.floor(200/avgCharWidth);
+
+          // using this measure, we break the metadata into lines: 
           const labelLinesb1 = wrapText(textContentb1, maxChars);
-          console.log(labelLinesb1);
+          const labelLinesb2 = wrapText(textContentb2, maxChars);
+
           // Add b1 metadata at the top of the Y axis:
           let space = lineHeight;
-          //textContentb1.split(", ").forEach((textContent) => {
           labelLinesb1.forEach((textContent) => {
             svgD3.append("text")
               .attr("transform", "rotate(-90)")
-              //.attr("x", (-innerHeight)/3 - visMargins.top)
               .attr("x", -150 - visMargins.top)  // 150 being the size of the Y axis
               .attr("y", space)  
               .attr("text-anchor", "start")  
               .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
               .text(textContent);
-          space += lineHeight;
+            space += lineHeight;
           })
+
           // Add b2 metadata at the bottom of the Y axis:
-          space = lineHeight;
-          //textContentb1.split(", ").forEach((textContent) => {
-          const labelLinesb2 = wrapText(textContentb2, maxChars);
-          console.log(labelLinesb2);
+          space = lineHeight;          
           labelLinesb2.forEach((textContent) => {
             svgD3.append("text")
               .attr("transform", "rotate(-90)")
-              //.attr("x", -innerHeight + visMargins.top) 
               .attr("x", -450 - visMargins.top) 
               .attr("y", space)  
               .attr("text-anchor", "start")  
@@ -299,23 +302,25 @@ const Visual = (props) => {
               .text(textContent);
             space += lineHeight;
           })
+
         } else {
+
           // Add b1 metadata at the top:
           svgD3.append("text")
             .attr("x", visMargins.left)             
-            .attr("y", 3*lineHeight)  // replace with axisLabelFontSize
+            .attr("y", includeURL ? 3*lineHeight : 2*lineHeight)  // replace with axisLabelFontSize
             .attr("text-anchor", "left")  
             .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
             .text(textContentb1);
-          // add b2 metadata at the bottom:
+
+            // add b2 metadata at the bottom:
           svgD3.append("text")
             .attr("x", visMargins.left)             
             .attr("y", outerHeight - lineHeight)  // replace with axisLabelFontSize
             .attr("text-anchor", "left")  
             .style("font-size", `${tickFontSize}px`)  // replace with axisLabelFontSize
             .text(textContentb2);
-        }
-      
+        }      
       }
     } 
   }
