@@ -64,7 +64,7 @@ const DownloadData = ({ data, status }) => {
                 color: "#6b7280",
               }}
             >
-              <IconButton size="large" variant="text" sx={{ fontSize: "15px" }}>
+              <IconButton size="large" variant="text" sx={{ fontSize: "15px", padding: "5px" }}>
                 <i
                   className="fa-solid fa-table-list"
                   style={{ color: "#2863A5" }}

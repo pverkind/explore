@@ -17,6 +17,8 @@ import { buildPairwiseCsvURL } from "../../../utility/Helper"
 import { setInitialValues } from "../../../functions/setInitialValues";
 import { getMetadataObject } from "../../../functions/getMetadataObject";
 import { setPairwiseVizData } from "../../../functions/setVisualizationData";
+import { CircularProgress } from "@mui/material";
+
 // import { csv } from "d3";
 
 const NavigationAndStats = () => {
@@ -51,6 +53,9 @@ const NavigationAndStats = () => {
   const [pairwiseLiteUrl, setPairwiseLiteUrl] = useState(null);
   const [pairwiseUrl, setPairwiseUrl] = useState(null);
   const [pairwiseFileName, setPairwiseFileName] = useState(null);
+  const [githubUrl, setGithubUrl] = useState(false);
+  const [loadingReuseData, setLoadingReuseData] = useState(false);
+  const [showLoadingMessage, setShowLoadingMessage] = useState(false);
 
   // Check if relevant parts have been loaded before we try to build the URLs and check them
   // If the lite url is 
@@ -60,10 +65,21 @@ const NavigationAndStats = () => {
     releaseCode &&
     srtFolders[releaseCode];
 
+  // Function to delay showing a loading message - avoids page flickering when data loads quickly
+  useEffect(() => {
+      let timer;
+      if (loadingReuseData === true) {
+        timer = setTimeout(() => setShowLoadingMessage(true), 1000);
+      } else {
+        setShowLoadingMessage(false);
+      }
+
+    return () => clearTimeout(timer);
+    }, [loadingReuseData]);
+  
   useEffect(() => {
     if (!booksReady) return;
     const checkSelectedUrls = async () => {
-      console.log(checkedBooks);
       if (checkedBooks.length !== 2) {
         // If we have not selected two books, then set these pairwise parameters to null
         setPairwiseLiteUrl(null);
@@ -72,7 +88,9 @@ const NavigationAndStats = () => {
         return;
         
         }
-      else {    
+      else {
+        console.log("Checking selected books for pairwise text reuse data");
+        setLoadingReuseData(true);    
       
         const book1 = checkedBooks[0];
         const book2 = checkedBooks[1];
@@ -81,60 +99,81 @@ const NavigationAndStats = () => {
         const book2Filename = book2?.release_version?.url.split("/").slice(-1)[0];
         const book2Code = book2Filename.split(".").slice(2).join(".");
 
-      // Create URLs for the selected books - if URL returns a response, then we set the variable
-      const LiteUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, true);
-      const fullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
-      const csvFileName = `${book1Code}_${book2Code}.csv`;
-      setPairwiseFileName(csvFileName);
+        // Create URLs for the selected books - if URL returns a response, then we set the variable
+        const LiteUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, true);
+        const fullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
+        const csvFileName = `${book1Code}_${book2Code}.csv`;
+        setPairwiseFileName(csvFileName);
 
-      // Check the URLs - if they are valid then set the state variables
-      // If the URL is not valid, then set the state variable to null
-      try {
-        const responseLite = await fetch(LiteUrl, { method: 'HEAD' });
-        if (responseLite.ok) {
-          setPairwiseLiteUrl(LiteUrl);
-          } else {
-            setPairwiseLiteUrl(null);
-          }
-        } catch (error) {
-              
-            const srtFolder = srtFoldersGitHub[releaseCode];
-            const csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
-            const responseGitHub = await fetch(csvUrl, { method: 'HEAD' });
-            if (responseGitHub.ok) {
-              setPairwiseLiteUrl(csvUrl);
+        // Check the URLs - if they are valid then set the state variables
+        // If the URL is not valid, then set the state variable to null
+        try {
+          const responseFull = await fetch(fullUrl, { method: 'HEAD' });
+          if (responseFull.ok) {
+            setPairwiseLiteUrl(LiteUrl);
+            setPairwiseUrl(fullUrl)
             } else {
               setPairwiseLiteUrl(null);
-              console.log("No URL found for pairwise Lite data");
-          }
-          };
-      try {
-        const responseFull = await fetch(fullUrl, { method: 'HEAD' });
-        if (responseFull.ok) {
-          setPairwiseUrl(fullUrl);
-          } else {
-            setPairwiseUrl(null);
-          }
-        } catch (error) {
-          console.log("No URL found for pairwise Full data");
-          setPairwiseUrl(null);
-        }
+            }
+          } catch (error) {
+              
+              const srtFolder = srtFoldersGitHub[releaseCode];
+              const csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
+              console.log(`Fetching data from Github with URL:${csvUrl}`);  
+              const responseGitHub = await fetch(csvUrl, { method: 'HEAD' });
+              if (responseGitHub.ok) {
+                setPairwiseLiteUrl(csvUrl);
+                setGithubUrl(true);
+              } else {
+                setPairwiseLiteUrl(null);
+                console.log("No URL found for pairwise Lite data");
+            }
+            };
+        // try {
+        //   const responseFull = await fetch(fullUrl, { method: 'HEAD' });
+        //   if (responseFull.ok) {
+        //     setPairwiseUrl(fullUrl);
+        //     } else {
+        //       setPairwiseUrl(null);
+        //     }
+        //   } catch (error) {
+        //     console.log("No URL found for pairwise Full data");
+        //     setPairwiseUrl(null);
+        //   }
+        setLoadingReuseData(false);
         }
       };
     checkSelectedUrls();
-    }, [checkedBooks, releaseCode, booksReady, pairwiseFileName, pairwiseUrl, pairwiseLiteUrl]);
+    }, [checkedBooks, releaseCode, booksReady]);
 
   // Download the text reuse data from the server - getting the full data file:
   const downloadTextReuseData = async (downloadUrl) => {
 
     if (downloadUrl !== null) {
-
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = pairwiseFileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (githubUrl) {
+        // If the URL is a GitHub URL, then we need to download it differently
+        const response = await fetch(downloadUrl);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", pairwiseFileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+       }
+      else {
+      
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = pairwiseFileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } 
   }
   
@@ -245,11 +284,12 @@ const NavigationAndStats = () => {
 
       <Grid container>
         <Grid
+          
           item
           container
-          sm={1}
-          md={4}
-          lg={6}
+          sm={12}
+          md={6}
+          lg={8}
           sx={{
             display: "flex",
             alignItems: "center",
@@ -281,6 +321,22 @@ const NavigationAndStats = () => {
           {checkedBooks.length !== 0 && (
             <>
               <Typography>Selected: {checkedBooks.length}</Typography>
+
+              <Box>
+                <Tooltip title={"Deselect All"} placement="top">
+                  <span>
+                    <IconButton
+                      size="large"
+                      variant="text"
+                      sx={{ fontSize: "15px", color: "#d01f2f", padding: "10px" }}
+                      onClick={() => setCheckedBooks([])}
+                    >
+                      <i className="fa-regular fa-square-minus"></i>
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </Box>
+
               <Tooltip
                 placement="top"
                 title={
@@ -289,7 +345,7 @@ const NavigationAndStats = () => {
                 }
               >
                 <IconButton
-                  sx={{ fontSize: "15px", color: "#2863A5", ml: "5px" }}
+                  sx={{ fontSize: "15px", color: "#2863A5", padding: "5px" }}
                   onClick={() => setDisplaySelected(!displaySelected)}
                 >
                   {displaySelected ? (
@@ -301,17 +357,23 @@ const NavigationAndStats = () => {
               </Tooltip>
             </>
           )}
-
+          <>
           <Box>{rows && <DownloadData data={rows} status={status} />}</Box>
 
           {checkedBooks.length === 0 ? (
             ""
           ) : checkedBooks.length === 1 ? (
-            <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
+            <Typography  color="#fbbf24" sx={{ width: "max-content", padding: "5px" }}>
               Select a second book to visualise pairwise text reuse
             </Typography>
-          ) : checkedBooks.length < 3 && pairwiseLiteUrl == null ? (
-            <Typography ml="10px" color="#fbbf24" sx={{ width: "max-content" }}>
+          ) : checkedBooks.length < 3 && !showLoadingMessage &&loadingReuseData ? (
+            ""
+          ) : checkedBooks.length < 3 && showLoadingMessage ? (
+            <Typography color="#fbbf24" sx={{ width: "max-content", padding: "5px" }}>
+              <CircularProgress size={"15px"} /> Loading text reuse data for selected books...
+            </Typography>
+          ) : checkedBooks.length < 3 && !loadingReuseData && pairwiseLiteUrl === null ? (
+            <Typography color="#fbbf24" sx={{ width: "max-content", padding: "5px" }}>
               No text reuse data available for selected books
             </Typography>
           ) : (
@@ -329,7 +391,7 @@ const NavigationAndStats = () => {
                   <IconButton
                     size="large"
                     variant="text"
-                    sx={{ fontSize: "15px" }}
+                    sx={{ fontSize: "15px", padding: "5px"}}
                     disabled={checkedBooks.length < 3 ? false : true}
                     onClick={() => loadChartFromSelected()}
                   >
@@ -351,7 +413,7 @@ const NavigationAndStats = () => {
                 title={
                   checkedBooks.length < 3 ? pairwiseUrl === null ?
                     "Pairwise File not available for selected books"
-                    : "Download Pairwise Text Reuse Data (larger file, excl. actual text alignments)"
+                    : "Download Pairwise Text Reuse Data (larger file, incl. actual text alignments)"
                     : "Select 2 books to download a file with pairwise text reuse"
                 }
                 placement="top"
@@ -360,7 +422,7 @@ const NavigationAndStats = () => {
                   <IconButton
                     size="large"
                     variant="text"
-                    sx={{ fontSize: "15px" }}
+                    sx={{ fontSize: "15px", padding: "5px"}}
                     disabled={checkedBooks.length < 3 ? false : true}
                     onClick={() => downloadTextReuseData(pairwiseUrl)}
                   >
@@ -390,7 +452,7 @@ const NavigationAndStats = () => {
                   <IconButton
                     size="large"
                     variant="text"
-                    sx={{ fontSize: "15px" }}
+                    sx={{ fontSize: "15px", padding: "5px" }}
                     disabled={checkedBooks.length < 3 ? false : true}
                     onClick={() => downloadTextReuseData(pairwiseLiteUrl)}
                   >
@@ -409,7 +471,7 @@ const NavigationAndStats = () => {
           </>
             
           )}
-
+          </>
           {checkedNotification ? (
             <Box>
               <Typography
@@ -425,30 +487,15 @@ const NavigationAndStats = () => {
           ) : (
             ""
           )}
-          {checkedBooks.length !== 0 && (
-            <Box ml={checkedBooks.length === 1 ? "20px" : "0px"}>
-              <Tooltip title={"Deselect All"} placement="top">
-                <span>
-                  <IconButton
-                    size="large"
-                    variant="text"
-                    sx={{ fontSize: "15px" }}
-                    onClick={() => setCheckedBooks([])}
-                  >
-                    <i className="fa-regular fa-square-minus"></i>
-                  </IconButton>
-                </span>
-              </Tooltip>
-            </Box>
-          )}
         </Grid>
 
         {totalRecords ? (
           <Grid
+            
             item
-            sm={1}
-            md={8}
-            lg={6}
+            sm={12}
+            md={6}
+            lg={4}
             sx={{
               display: {
                 xs: "none",
