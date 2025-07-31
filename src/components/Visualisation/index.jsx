@@ -17,6 +17,9 @@ import { downloadCsvData, getOneBookReuseStats, getOneBookMsData } from "../../s
 import { Context } from "../../App";
 import { checkPairwiseCsvResponse } from "../../utility/Helper";
 
+
+
+
 // Check the metadata response from a URL - return an array of failed books
 const checkVersionMeta = (versionMeta, bookNames) => {
   const failedBooks = [];
@@ -133,6 +136,8 @@ const VisualisationPage = () => {
     setIsFileUploaded,
     isError,
     setIsError,
+    errorType,
+    setErrorType,
     setUrl,
     defaultReleaseCode,
     setMainVersionCode,
@@ -277,6 +282,7 @@ const VisualisationPage = () => {
     if (failedBooks.length > 0) {
       setDataLoading({ ...dataLoading, uploading: false });
       setIsError(true);
+      setErrorType('The book ids in your URL do not match any books in the KITAB corpus. Please check your URL and try again. Failed ids: ' + failedBooks.join(", "));
       setIsLoading(false);
 
     } else if (book_names.length === 1 || book_names[1] === "all") {
@@ -316,6 +322,7 @@ const VisualisationPage = () => {
       } catch (err) {
         setDataLoading({ ...dataLoading, uploading: false });
         setIsError(true);
+        setErrorType('There was an error loading the data for the book: ' + book_names[0] + '. Please check your URL and try again.');
         setIsLoading(false);
       }
     } else if (book_names.length === 2) {
@@ -359,6 +366,7 @@ const VisualisationPage = () => {
           // If the pairwise URL is not found then set error state
           setDataLoading({ ...dataLoading, uploading: false });
           setIsError(true);
+          setErrorType('The pairwise text reuse data for the book ids: ' + book_names.join(", ") + ' could not be found. There may not be text reuse data for this pair.');
           setIsLoading(false);
         } 
 
@@ -405,6 +413,7 @@ const VisualisationPage = () => {
     } else {
       setDataLoading({ ...dataLoading, uploading: false });
       setIsError(true);
+      setErrorType('You have not supplied a valid URL.')
       setIsLoading(false);
     }
   };
@@ -447,12 +456,11 @@ const VisualisationPage = () => {
         >
           <Typography variant="h4">No data found to visualize.</Typography>
           <Typography variant="body1" color="grey">
-            We may not have text reuse data for these texts, or there might be
-            another problem.
+            {errorType}
           </Typography>
-          <Typography variant="body1" color="grey">
+          {/* <Typography variant="body1" color="grey">
             [Please make sure the file name is correct]
-          </Typography>
+          </Typography> */}
         </Box>
       ) : (
         <Box position="relative">
