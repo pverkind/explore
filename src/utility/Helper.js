@@ -468,5 +468,5 @@ export {
   buildPairwiseCsvURL,
   loadChartFromUrl,
   checkPairwiseCsvResponse,
-  
+  enableMockFetch
 };
