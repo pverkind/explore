@@ -356,7 +356,8 @@ function wrapText(text, maxChars) {
   let currentWord = "";
   let currentLine = "";
 
-  for (const char of text) {
+  for (let i=0; i<text.length; i++) {
+    const char = text[i];
     currentWord += char
     // use space or hyphen to delimit a word:
     if (char === " " || char === "-") {
