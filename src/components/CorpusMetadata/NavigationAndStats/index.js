@@ -13,8 +13,9 @@ import { Checkbox } from "@mui/material";
 import { useState, useEffect } from "react";
 import { 
   // lightSrtFolders, 
-  srtFoldersGitHub, srtFolders } from "../../../assets/srtFolders";
-import { buildPairwiseCsvURL, loadChartFromUrl } from "../../../utility/Helper"
+  // srtFoldersGitHub, 
+  srtFolders } from "../../../assets/srtFolders";
+import { loadChartFromUrl, checkPairwiseCsvResponse} from "../../../utility/Helper"
 
 // import { setInitialValues } from "../../../functions/setInitialValues";
 // import { getMetadataObject } from "../../../functions/getMetadataObject";
@@ -83,6 +84,7 @@ const NavigationAndStats = () => {
   useEffect(() => {
     if (!booksReady) return;
     const checkSelectedUrls = async () => {
+
       if (checkedBooks.length !== 2) {
         // If we have not selected two books, then set these pairwise parameters to null
         setPairwiseLiteUrl(null);
@@ -93,8 +95,11 @@ const NavigationAndStats = () => {
         }
       else {
         console.log("Checking selected books for pairwise text reuse data");
-        setLoadingReuseData(true);    
-      
+        
+        // Activate the loading function - allows us to show a loading spinner after a delay (to avoid flickering)
+        setLoadingReuseData(true);
+        
+        // Use selected books to get necessary data for building and checking URLs
         const book1 = checkedBooks[0];
         const book2 = checkedBooks[1];
         const book1Filename = book1?.release_version?.url.split("/").slice(-1)[0];
@@ -102,39 +107,48 @@ const NavigationAndStats = () => {
         const book2Filename = book2?.release_version?.url.split("/").slice(-1)[0];
         const book2Code = book2Filename.split(".").slice(2).join(".");
 
-        // Create URLs for the selected books - if URL returns a response, then we set the variable
-        const LiteUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, true);
-        const fullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
         const csvFileName = `${book1Code}_${book2Code}.csv`;
         setPairwiseFileName(csvFileName);
 
         const idPair = `${book1Code}_${book2Code}`;
         setIdPair(idPair);
 
-        // Check the URLs - if they are valid then set the state variables
-        // If the URL is not valid, then set the state variable to null
-        try {
-          const responseFull = await fetch(fullUrl, { method: 'HEAD' });
-          if (responseFull.ok) {
-            setPairwiseLiteUrl(LiteUrl);
-            setPairwiseUrl(fullUrl)
-            } else {
-              setPairwiseLiteUrl(null);
-            }
-          } catch (error) {
+        // Create and check the URLs - func will return null for either if URL does not exist
+        const urlObj = await checkPairwiseCsvResponse(releaseCode, book1, book2, true);
+        console.log(urlObj)
+        setPairwiseUrl(urlObj.pairwiseUrl);
+        setPairwiseLiteUrl(urlObj.pairwiseLiteUrl);
+        setGithubUrl(urlObj.githubUrl);
+
+        // // Create URLs for the selected books - if URL returns a response, then we set the variable
+        // const LiteUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, true);
+        // const fullUrl = await buildPairwiseCsvURL(releaseCode, book1, book2, false);
+
+
+        // // Check the URLs - if they are valid then set the state variables
+        // // If the URL is not valid, then set the state variable to null
+        // try {
+        //   const responseFull = await fetch(fullUrl, { method: 'HEAD' });
+        //   if (responseFull.ok) {
+        //     setPairwiseLiteUrl(LiteUrl);
+        //     setPairwiseUrl(fullUrl)
+        //     } else {
+        //       setPairwiseLiteUrl(null);
+        //     }
+        //   } catch (error) {
               
-              const srtFolder = srtFoldersGitHub[releaseCode];
-              const csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
-              console.log(`Fetching data from Github with URL:${csvUrl}`);  
-              const responseGitHub = await fetch(csvUrl, { method: 'HEAD' });
-              if (responseGitHub.ok) {
-                setPairwiseLiteUrl(csvUrl);
-                setGithubUrl(true);
-              } else {
-                setPairwiseLiteUrl(null);
-                console.log("No URL found for pairwise Lite data");
-            }
-            };
+        //       const srtFolder = srtFoldersGitHub[releaseCode];
+        //       const csvUrl = `${srtFolder}/${book1Code}/${csvFileName}`;
+        //       console.log(`Fetching data from Github with URL:${csvUrl}`);  
+        //       const responseGitHub = await fetch(csvUrl, { method: 'HEAD' });
+        //       if (responseGitHub.ok) {
+        //         setPairwiseLiteUrl(csvUrl);
+        //         setGithubUrl(true);
+        //       } else {
+        //         setPairwiseLiteUrl(null);
+        //         console.log("No URL found for pairwise Lite data");
+        //     }
+        //     };
         // try {
         //   const responseFull = await fetch(fullUrl, { method: 'HEAD' });
         //   if (responseFull.ok) {

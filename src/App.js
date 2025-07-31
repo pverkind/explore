@@ -174,6 +174,7 @@ function App() {
   const [selectedLine, setSelectedLine] = useState({});
   const [showWikiEdDiff, setWikiEdDiff] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [errorType, setErrorType] =  useState(["We may not have text reuse data for these texts, or there might be another problem.", "Error Type: Unknown"])
   const [showOptions, setShowOptions] = useState(false);
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const [url, setUrl] = useState("");
@@ -377,6 +378,8 @@ function App() {
         setFocusedDataIndex,
         isError,
         setIsError,
+        errorType,
+        setErrorType,
         showOptions,
         setShowOptions,
         showDownloadOptions, 

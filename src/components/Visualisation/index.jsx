@@ -13,10 +13,26 @@ import { setInitialValues } from "../../functions/setInitialValues";
 import { getVersionMeta } from "../../functions/getVersionMeta";
 import { setPairwiseVizData, setMultiVizData } from "../../functions/setVisualizationData";
 import { downloadCsvData, getOneBookReuseStats, getOneBookMsData } from "../../services/TextReuseData";
-import { lightSrtFolders, srtFoldersGitHub } from "../../assets/srtFolders";
 import { getMetaLabel, wrapText } from "../../utility/Helper";
+// import { lightSrtFolders, srtFoldersGitHub } from "../../assets/srtFolders";
 import { Context } from "../../App";
+import { checkPairwiseCsvResponse } from "../../utility/Helper";
 
+
+
+
+// Check the metadata response from a URL - return an array of failed books
+const checkVersionMeta = (versionMeta, bookNames) => {
+  const failedBooks = [];
+  for (const [key, value] of Object.entries(versionMeta)) {
+    if (value instanceof Error || value?.message?.includes("Unexpected token")) {
+      const failedIndex = key.replace("book", "") - 1;
+      let failedBook = bookNames[failedIndex];
+      failedBooks.push(failedBook);
+    }
+  }
+  return failedBooks;
+}
 
 // construct the text reuse csv filename based on metadata of both books:
 const buildCsvFilename = (book1Meta, book2Meta) => {
@@ -114,7 +130,7 @@ const VisualisationPage = () => {
     metaData,
     setMetaData,
     setChartData,
-    loadedCsvFile,
+    // loadedCsvFile,
     setLoadedCsvFile,
     releaseCode,
     chartData,
@@ -122,6 +138,8 @@ const VisualisationPage = () => {
     setIsFileUploaded,
     isError,
     setIsError,
+    errorType,
+    setErrorType,
     setUrl,
     defaultReleaseCode,
     setMainVersionCode,
@@ -318,8 +336,15 @@ const VisualisationPage = () => {
 
     // download the version metadata of all books in the URL booksParam:
     const versionMeta = await getVersionMeta(releaseCode, book_names);
+    // check if there are errors in the returned metadata
+    const failedBooks = checkVersionMeta(versionMeta, book_names);
+    if (failedBooks.length > 0) {
+      setDataLoading({ ...dataLoading, uploading: false });
+      setIsError(true);
+      setErrorType(["Some book Ids in your pairwise URL do not match books in the KITAB corpus. Please check your URL and try again.", "Failed Ids: " + failedBooks.join(", ")]);
+      setIsLoading(false);
 
-    if (book_names.length === 1 || book_names[1] === "all") {
+    } else if (book_names.length === 1 || book_names[1] === "all") {
       try {
         // ONE TO ALL VISUALISATION
         setIsPairwiseViz(false);
@@ -356,57 +381,98 @@ const VisualisationPage = () => {
       } catch (err) {
         setDataLoading({ ...dataLoading, uploading: false });
         setIsError(true);
+        setErrorType(["There was an error loading the data for the book: " + book_names[0] + ".", "Please check your URL and try again."]);
         setIsLoading(false);
       }
     } else if (book_names.length === 2) {
-      try {
+      // try {
         // PAIRWISE VISUALISATION
         setIsPairwiseViz(true);
         const book1 = versionMeta.book1;
         const book2 = versionMeta.book2;
-        // first, try to download the text reuse data from the KITAB web server:
         const csvFileName = buildCsvFilename(book1, book2);
-        let passimFolder = lightSrtFolders[releaseCode];
-        let url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
+        
+        // Use helper function to build and check csv URL
+        const pairwiseCsvResponse = await checkPairwiseCsvResponse(
+          releaseCode, book1, book2, false)
+        
+        if (pairwiseCsvResponse.pairwiseLiteUrl !== null) {
+          // If the pairwise URL is valid, proceed with loading the data
+          const CSVFile = await downloadCsvData(pairwiseCsvResponse.pairwiseLiteUrl);
+          // remove the loadedCsvFile blob from memory (context):
+          setLoadedCsvFile(null);
 
-        // download the pairwise passim data if it was not downloaded/uploaded yet:
-        let CSVFile = loadedCsvFile || (await downloadCsvData(url));
+          setPairwiseVizData({
+            book1,
+            book2,
+            CSVFile,
+            dataLoading,
+            setDataLoading,
+            setMetaData,
+            releaseCode,
+            getMetadataObject,
+            setChartData,
+            setIsError,
+            setIsFileUploaded,
+            navigate,
+            csvFileName,
+            setUrl,
+          });
 
-        // if this fails: try to download it from GitHub:
-        if (CSVFile instanceof Error) {
-          passimFolder = srtFoldersGitHub[releaseCode];
-          url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
-          CSVFile = await downloadCsvData(url);
-        }
-        // remove the loadedCsvFile blob from memory (context):
-        setLoadedCsvFile(null);
+          setIsLoading(false);
 
-        setPairwiseVizData({
-          book1,
-          book2,
-          CSVFile,
-          dataLoading,
-          setDataLoading,
-          setMetaData,
-          releaseCode,
-          getMetadataObject,
-          setChartData,
-          setIsError,
-          setIsFileUploaded,
-          navigate,
-          csvFileName,
-          setUrl,
-        });
+        } else {
+          // If the pairwise URL is not found then set error state
+          setDataLoading({ ...dataLoading, uploading: false });
+          setIsError(true);
+          setErrorType(["The pairwise text reuse data for the book ids: " + book_names.join(", ") + " could not be found.", "There may not be text reuse data for this pair."]);
+          setIsLoading(false);
+        } 
 
-        setIsLoading(false);
-      } catch (err) {
-        setDataLoading({ ...dataLoading, uploading: false });
-        setIsError(true);
-        setIsLoading(false);
-      }
+    //     // first, try to download the text reuse data from the KITAB web server:
+    //     const csvFileName = buildCsvFilename(book1, book2);
+    //     let passimFolder = lightSrtFolders[releaseCode];
+    //     let url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
+
+    //     // download the pairwise passim data if it was not downloaded/uploaded yet:
+    //     let CSVFile = loadedCsvFile || (await downloadCsvData(url));
+
+    //     // if this fails: try to download it from GitHub:
+    //     if (CSVFile instanceof Error) {
+    //       passimFolder = srtFoldersGitHub[releaseCode];
+    //       url = `${passimFolder}/${book_names[0]}/${csvFileName}`;
+    //       CSVFile = await downloadCsvData(url);
+    //     }
+    //     // remove the loadedCsvFile blob from memory (context):
+    //     setLoadedCsvFile(null);
+
+    //     setPairwiseVizData({
+    //       book1,
+    //       book2,
+    //       CSVFile,
+    //       dataLoading,
+    //       setDataLoading,
+    //       setMetaData,
+    //       releaseCode,
+    //       getMetadataObject,
+    //       setChartData,
+    //       setIsError,
+    //       setIsFileUploaded,
+    //       navigate,
+    //       csvFileName,
+    //       setUrl,
+    //     });
+
+    //     setIsLoading(false);
+    //   } catch (err) {
+    //     setDataLoading({ ...dataLoading, uploading: false });
+    //     setIsError(true);
+    //     setIsLoading(false);
+    //   }
     } else {
       setDataLoading({ ...dataLoading, uploading: false });
       setIsError(true);
+      setErrorType(['You have not supplied a valid URL.', ''])
       setIsLoading(false);
     }
   };
@@ -449,11 +515,10 @@ const VisualisationPage = () => {
         >
           <Typography variant="h4">No data found to visualize.</Typography>
           <Typography variant="body1" color="grey">
-            We may not have text reuse data for these texts, or there might be
-            another problem.
+            {errorType[0]}
           </Typography>
           <Typography variant="body1" color="grey">
-            [Please make sure the file name is correct]
+            {errorType[1]}
           </Typography>
         </Box>
       ) : (
