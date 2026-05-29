@@ -21,8 +21,6 @@ License: MIT
  * Date: Sun, 13 Jul 2025 10:10:02 GMT
  */
 
-/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
-
 /**
  * @license React
  * react-is.production.min.js
@@ -42,7 +40,7 @@ License: MIT
  */
 
 /**
- * @remix-run/router v1.6.2
+ * @remix-run/router v1.23.2
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -61,7 +59,7 @@ License: MIT
  */
 
 /**
- * React Router DOM v6.11.2
+ * React Router DOM v6.30.3
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -72,7 +70,7 @@ License: MIT
  */
 
 /**
- * React Router v6.11.2
+ * React Router v6.30.3
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -126,3 +124,5 @@ License: MIT
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
+// @license     released into the public domain
