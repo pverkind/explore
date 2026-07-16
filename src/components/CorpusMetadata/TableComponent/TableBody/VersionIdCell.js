@@ -34,7 +34,7 @@ function downloadGitHubRawFile(row) {
       anchor.href = url;
 
       // Set the anchor's download attribute and filename
-      const outputFilename = new URL(`${row?.release_version?.ur}`).pathname.split('/').pop();
+      const outputFilename = new URL(`${row?.release_version?.url}`).pathname.split('/').pop();
       anchor.download = outputFilename;
 
       // Trigger a click event on the anchor element to start the download
