@@ -2239,7 +2239,7 @@ const Visual = (props) => {
           />
         </Box>
         {/* TOC filter slide-out panel — fixed to viewport right, height matches chart div */}
-        <Box sx={{
+        <Box id="toc-filter-panel" sx={{
           position: "fixed",
           top: tocPanelBounds.top,
           height: tocPanelBounds.height,

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import Header from "./Header";
@@ -16,6 +16,8 @@ import { downloadCsvData, getOneBookReuseStats, getOneBookMsData } from "../../s
 import { getMetaLabel, measureSvgText, wrapTextToSvgWidth, checkPairwiseCsvResponse } from "../../utility/Helper";
 // import { lightSrtFolders, srtFoldersGitHub } from "../../assets/srtFolders";
 import { Context } from "../../App";
+import PairwiseVisualizationTour, { DEMO_BOOKS } from "../GuidedTour/PairwiseVisualizationTour";
+import { MAIN_TOUR_REQUEST } from "../GuidedTour/TourMenu";
 
 
 // Check the metadata response from a URL - return an array of failed books
@@ -146,7 +148,8 @@ const VisualisationPage = () => {
     metaPositionInDownload,
     axisLabelFontSize,
     tickFontSize, 
-    setYTickWidth
+    setYTickWidth,
+    setIsOpenDrawer,
   } = useContext(Context);
 
   const [isPairwiseViz, setIsPairwiseViz] = useState(false);
@@ -155,6 +158,37 @@ const VisualisationPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { version } = useParams();
+
+  const [pairwiseTourRunning, setPairwiseTourRunning] = useState(false);
+  const tourAutoStarted = useRef(false);
+
+  // Start the pairwise tour automatically when arriving from the "Take a tour" dropdown
+  // on the landing page, once the chart has been drawn. The request is passed as a
+  // ?tour=pairwise URL parameter and as a sessionStorage flag (the parameter can get lost
+  // when the landing page rewrites the URL while it unmounts).
+  useEffect(() => {
+    if (tourAutoStarted.current) return;
+    let requested = searchParams.get("tour") === "pairwise";
+    try {
+      requested = requested || sessionStorage.getItem("kitab-start-pairwise-tour") === "1";
+    } catch (e) { /* sessionStorage unavailable */ }
+    if (!requested) return;
+    if (!isPairwiseViz || !isFileUploaded || !chartData?.dataSets?.length) return;
+    // wait until the red bars have actually been drawn (up to 20 seconds):
+    let waited = 0;
+    const timer = setInterval(() => {
+      waited += 300;
+      const drawn = document.querySelector("#firstchart .bar");
+      if (!drawn && waited < 20000) return;
+      clearInterval(timer);
+      setTimeout(() => {
+        tourAutoStarted.current = true;
+        try { sessionStorage.removeItem("kitab-start-pairwise-tour"); } catch (e) { /* ignore */ }
+        setPairwiseTourRunning(true);
+      }, 800);
+    }, 300);
+    return () => clearInterval(timer);
+  }, [searchParams, isPairwiseViz, isFileUploaded, chartData]);
 
   // update the margins of the graphs, based on 
   // * label font size
@@ -652,7 +686,28 @@ const VisualisationPage = () => {
         position: "relative",
       }}
     >
-      <Header isPairwiseViz={isPairwiseViz} />
+      <Header
+        isPairwiseViz={isPairwiseViz}
+        onStartTour={(key) => {
+          if (key === "pairwise") {
+            if (isPairwiseViz) {
+              setPairwiseTourRunning(true);
+            } else {
+              // not on a pairwise chart: open the demo pair, which starts the tour
+              try { sessionStorage.setItem("kitab-start-pairwise-tour", "1"); } catch (e) { /* ignore */ }
+              navigate(`/visualise/${releaseCode}/?books=${DEMO_BOOKS}&tour=pairwise`);
+            }
+          } else if (key === "main") {
+            try { sessionStorage.setItem(MAIN_TOUR_REQUEST, "1"); } catch (e) { /* ignore */ }
+            navigate(`/${releaseCode}/`);
+          }
+        }}
+      />
+      <PairwiseVisualizationTour
+        run={pairwiseTourRunning}
+        setIsOpenDrawer={setIsOpenDrawer}
+        onExit={() => setPairwiseTourRunning(false)}
+      />
       {isError ? (
         <Box
           height="200px"
@@ -700,6 +755,10 @@ const VisualisationPage = () => {
               {chartData?.dataSets?.length || chartData?.msData?.length ? (
                 isPairwiseViz ? (
                   <Visual isPairwiseViz={isPairwiseViz} includeURL={includeURL} setIncludeURL={setIncludeURL} />
+                ) : !chartData?.msData?.length ? (
+                  // stale pairwise data from an earlier visualisation, while the
+                  // one in the URL is still being loaded: do not render it as one-to-many
+                  <CircularInterminate />
                 ) : (
                   <MultiVisual isPairwiseViz={isPairwiseViz} handleUpload={handleUpload} includeURL={includeURL} setIncludeURL={setIncludeURL} />
                 )

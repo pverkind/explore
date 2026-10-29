@@ -13,7 +13,11 @@ const SectionHeaderLayout = ({ item, children, toggle, setToggle, mb = "20px", s
     metaData,
   } = useContext(Context);
   return (
-    <Box mb={mb} className="section-header-layout">
+    <Box
+      mb={mb}
+      className="section-header-layout"
+      id={item.title === "Pairwise Visualization" ? "pairwise-viz-header" : undefined}
+    >
       <Box
         display={"flex"}
         justifyContent={"space-between"}
