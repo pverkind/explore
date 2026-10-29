@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
+import { hideTour, showTour } from "./tourHide";
 
 const TOUR_KEY = "kitab-pairwise-tour-seen";
 
@@ -297,6 +298,7 @@ const PairwiseVisualizationTour = ({ run, onExit, setIsOpenDrawer }) => {
 
     const handleDone = () => {
       cleanUp();
+      showTour();
       localStorage.setItem(TOUR_KEY, "true");
       onExit?.();
     };
@@ -306,6 +308,7 @@ const PairwiseVisualizationTour = ({ run, onExit, setIsOpenDrawer }) => {
     const restartAt = async (index) => {
       const oldTour = introRef.current;
       introRef.current = null;
+      hideTour(); // no popup that jumps around while the tour restarts
       await oldTour?.exit(true);
       launch(index + 1);
     };
@@ -385,6 +388,7 @@ const PairwiseVisualizationTour = ({ run, onExit, setIsOpenDrawer }) => {
         if (diffReady) return; // restarted tour: the DiffViewer is open and resolvable
         // the bar from the previous step stays selected; select one if it is not
         return (async () => {
+          hideTour(); // no popup that jumps around while the page scrolls
           if (!isBarSelected()) {
             selectMiddleBar();
             tourBarSelected = true;
@@ -471,12 +475,18 @@ const PairwiseVisualizationTour = ({ run, onExit, setIsOpenDrawer }) => {
       if (!startAt) return;
       launching = false;
       await tour.goToStep(startAt);
-    }).catch((error) => console.error("Pairwise tour:", error));
+      await wait(700); // let the page scroll and the highlight settle before showing it
+      showTour();
+    }).catch((error) => {
+      showTour();
+      console.error("Pairwise tour:", error);
+    });
     };
     launch(0);
 
     return () => {
       introRef.current?.exit(true);
+      showTour();
     };
   }, [run]); // eslint-disable-line react-hooks/exhaustive-deps
 

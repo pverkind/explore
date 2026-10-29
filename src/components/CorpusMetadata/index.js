@@ -14,6 +14,7 @@ import { Context } from "../../App";
 import { cleanSearchPagination } from "../../utility/Helper";
 import CorpusMetadataTour, { TOUR_KEY } from "../GuidedTour/CorpusMetadataTour";
 import { DEMO_BOOKS } from "../GuidedTour/PairwiseVisualizationTour";
+import { DEMO_BOOKS as CORPUSWIDE_DEMO_BOOKS } from "../GuidedTour/CorpuswideVisualizationTour";
 import { MAIN_TOUR_REQUEST } from "../GuidedTour/TourMenu";
 
 // make custom style for material ui component
@@ -347,7 +348,10 @@ const MetadataTable = ({ isHome }) => {
         <CorpusHeader
           onStartTour={(key) => {
             if (key === "main") setTourRunning(true);
-            else if (key === "pairwise") {
+            else if (key === "corpuswide") {
+              try { sessionStorage.setItem("kitab-start-corpuswide-tour", "1"); } catch (e) { /* ignore */ }
+              navigate(`/visualise/${releaseCode}/?books=${CORPUSWIDE_DEMO_BOOKS}&tour=corpuswide`);
+            } else if (key === "pairwise") {
               try { sessionStorage.setItem("kitab-start-pairwise-tour", "1"); } catch (e) { /* ignore */ }
               navigate(`/visualise/${releaseCode}/?books=${DEMO_BOOKS}&tour=pairwise`);
             }

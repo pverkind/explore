@@ -6,7 +6,7 @@ import { Button, Menu, MenuItem, Typography } from "@mui/material";
 export const TOURS = [
   { key: "main", label: "Main Page Tour", available: true },
   { key: "pairwise", label: "Pairwise Visualization Tour", available: true },
-  { key: "corpuswide", label: "Corpuswide Visualization Tour", available: false },
+  { key: "corpuswide", label: "Corpuswide Visualization Tour", available: true },
 ];
 
 // sessionStorage flag: start the main page tour once the landing page has loaded

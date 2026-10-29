@@ -17,6 +17,7 @@ import { getMetaLabel, measureSvgText, wrapTextToSvgWidth, checkPairwiseCsvRespo
 // import { lightSrtFolders, srtFoldersGitHub } from "../../assets/srtFolders";
 import { Context } from "../../App";
 import PairwiseVisualizationTour, { DEMO_BOOKS } from "../GuidedTour/PairwiseVisualizationTour";
+import CorpuswideVisualizationTour, { DEMO_BOOKS as CORPUSWIDE_DEMO_BOOKS } from "../GuidedTour/CorpuswideVisualizationTour";
 import { MAIN_TOUR_REQUEST } from "../GuidedTour/TourMenu";
 
 
@@ -160,31 +161,46 @@ const VisualisationPage = () => {
   const { version } = useParams();
 
   const [pairwiseTourRunning, setPairwiseTourRunning] = useState(false);
+  const [corpuswideTourRunning, setCorpuswideTourRunning] = useState(false);
   const tourAutoStarted = useRef(false);
 
   // Start the pairwise tour automatically when arriving from the "Take a tour" dropdown
   // on the landing page, once the chart has been drawn. The request is passed as a
   // ?tour=pairwise URL parameter and as a sessionStorage flag (the parameter can get lost
   // when the landing page rewrites the URL while it unmounts).
+  // The same goes for the corpuswide tour (?tour=corpuswide).
   useEffect(() => {
     if (tourAutoStarted.current) return;
-    let requested = searchParams.get("tour") === "pairwise";
-    try {
-      requested = requested || sessionStorage.getItem("kitab-start-pairwise-tour") === "1";
-    } catch (e) { /* sessionStorage unavailable */ }
-    if (!requested) return;
-    if (!isPairwiseViz || !isFileUploaded || !chartData?.dataSets?.length) return;
-    // wait until the red bars have actually been drawn (up to 20 seconds):
+    const requested = (name) => {
+      let found = searchParams.get("tour") === name;
+      try {
+        found = found || sessionStorage.getItem(`kitab-start-${name}-tour`) === "1";
+      } catch (e) { /* sessionStorage unavailable */ }
+      return found;
+    };
+    let which = null;
+    if (isPairwiseViz && requested("pairwise")) which = "pairwise";
+    else if (!isPairwiseViz && requested("corpuswide")) which = "corpuswide";
+    if (!which || !isFileUploaded) return;
+    // the data must be there, and the chart drawn (up to 20 seconds):
+    const dataReady = which === "pairwise"
+      ? chartData?.dataSets?.length
+      : chartData?.msData?.length;
+    if (!dataReady) return;
+    const drawnSelector = which === "pairwise"
+      ? "#firstchart .bar"
+      : "#scatterChart circle.dot";
     let waited = 0;
     const timer = setInterval(() => {
       waited += 300;
-      const drawn = document.querySelector("#firstchart .bar");
+      const drawn = document.querySelector(drawnSelector);
       if (!drawn && waited < 20000) return;
       clearInterval(timer);
       setTimeout(() => {
         tourAutoStarted.current = true;
-        try { sessionStorage.removeItem("kitab-start-pairwise-tour"); } catch (e) { /* ignore */ }
-        setPairwiseTourRunning(true);
+        try { sessionStorage.removeItem(`kitab-start-${which}-tour`); } catch (e) { /* ignore */ }
+        if (which === "pairwise") setPairwiseTourRunning(true);
+        else setCorpuswideTourRunning(true);
       }, 800);
     }, 300);
     return () => clearInterval(timer);
@@ -666,7 +682,7 @@ const VisualisationPage = () => {
       loadChartFromUrl();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [releaseCode]);
+  }, [releaseCode, searchParams.get("books")]);
   return (
     <Box
       mx={"auto"}
@@ -695,7 +711,17 @@ const VisualisationPage = () => {
             } else {
               // not on a pairwise chart: open the demo pair, which starts the tour
               try { sessionStorage.setItem("kitab-start-pairwise-tour", "1"); } catch (e) { /* ignore */ }
+              tourAutoStarted.current = false;
               navigate(`/visualise/${releaseCode}/?books=${DEMO_BOOKS}&tour=pairwise`);
+            }
+          } else if (key === "corpuswide") {
+            if (!isPairwiseViz && chartData?.msData?.length) {
+              setCorpuswideTourRunning(true);
+            } else {
+              // not on a corpus-wide chart: open the demo book, which starts the tour
+              try { sessionStorage.setItem("kitab-start-corpuswide-tour", "1"); } catch (e) { /* ignore */ }
+              tourAutoStarted.current = false;
+              navigate(`/visualise/${releaseCode}/?books=${CORPUSWIDE_DEMO_BOOKS}&tour=corpuswide`);
             }
           } else if (key === "main") {
             try { sessionStorage.setItem(MAIN_TOUR_REQUEST, "1"); } catch (e) { /* ignore */ }
@@ -707,6 +733,10 @@ const VisualisationPage = () => {
         run={pairwiseTourRunning}
         setIsOpenDrawer={setIsOpenDrawer}
         onExit={() => setPairwiseTourRunning(false)}
+      />
+      <CorpuswideVisualizationTour
+        run={corpuswideTourRunning}
+        onExit={() => setCorpuswideTourRunning(false)}
       />
       {isError ? (
         <Box

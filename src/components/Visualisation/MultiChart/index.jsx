@@ -489,6 +489,7 @@ const MultiVisual = ({ includeURL, setIncludeURL, ...props }) => {
 
 
       <Box
+        id="multi-filter-panel"
         sx={{
           display: showFilterPanel ? "block" : "none",
           bgcolor: "#F0F0F5",
@@ -643,7 +644,7 @@ const MultiVisual = ({ includeURL, setIncludeURL, ...props }) => {
             statMetric={statMetric}
           />
           {milestoneTextInfo && (
-            <Box ref={textPanelRef} sx={{ mx: `${visMargins.left}px`, maxWidth: `${width + visMargins.right}px` }}>
+            <Box id="milestone-text-panel" ref={textPanelRef} sx={{ mx: `${visMargins.left}px`, maxWidth: `${width + visMargins.right}px` }}>
               <MilestoneTextPanel
                 ms_id={milestoneTextInfo.ms_id}
                 text={milestoneTextInfo.text}

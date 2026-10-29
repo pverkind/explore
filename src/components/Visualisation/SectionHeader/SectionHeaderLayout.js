@@ -16,7 +16,13 @@ const SectionHeaderLayout = ({ item, children, toggle, setToggle, mb = "20px", s
     <Box
       mb={mb}
       className="section-header-layout"
-      id={item.title === "Pairwise Visualization" ? "pairwise-viz-header" : undefined}
+      id={
+        item.title === "Pairwise Visualization"
+          ? "pairwise-viz-header"
+          : item.title === "One-to-Many Visualization"
+          ? "multi-viz-header"
+          : undefined
+      }
     >
       <Box
         display={"flex"}
