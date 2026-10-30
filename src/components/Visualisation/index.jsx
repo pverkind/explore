@@ -243,6 +243,9 @@ const VisualisationPage = () => {
       }, 800);
     }, 300);
     return () => clearInterval(timer);
+    // removeTourParam is deliberately not a dependency: it is a new function on every
+    // render, which would restart this effect (and its polling) all the time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, isPairwiseViz, isFileUploaded, chartData]);
 
   // update the margins of the graphs, based on 
