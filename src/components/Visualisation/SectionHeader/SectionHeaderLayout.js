@@ -1,21 +1,26 @@
-import { Box, Typography } from "@mui/material";
-import React from "react";
-import ToggleButton from "./ToggleButton";
-import BAExtra from "./BookAlignmentHeader/BAExtra";
 import { useContext } from "react";
+import { Box, Typography } from "@mui/material";
+//import ToggleButton from "./ToggleButton";
+import BAExtra from "./BookAlignmentHeader/BAExtra";
+import DownloadPanel from "./VisualizationHeader/DownloadPanel";
 import { Context } from "../../../App";
 
-const SectionHeaderLayout = ({ item, children, toggle, setToggle }) => {
-  const { showOptions } = useContext(Context);
+const SectionHeaderLayout = ({ item, children, toggle, setToggle, mb = "20px", showDownloadOptions = false, includeURL = false, setIncludeURL, includeMetadata, setIncludeMetadata, includeTocMarkers, setIncludeTocMarkers, includeLegend, setIncludeLegend, includeSidebar, setIncludeSidebar, includeBottomBar, setIncludeBottomBar }) => {
+  const {
+    showOptions,
+    isFlipped,
+    releaseCode,
+    metaData,
+  } = useContext(Context);
   return (
-    <Box mb="20px">
+    <Box mb={mb} className="section-header-layout">
       <Box
         display={"flex"}
         justifyContent={"space-between"}
         gap={"0px"}
         sx={{
           alignItems: "center",
-          height: "60px",
+          minHeight: "60px",
           px: {
             xs: "10px",
             sm: "25px",
@@ -43,11 +48,45 @@ const SectionHeaderLayout = ({ item, children, toggle, setToggle }) => {
           </Typography>
         </Box>
         <Box sx={{ flexGrow: 1 }}>{children}</Box>
-        <Box display="flex" alignItems="center" justifyContent="flex-end">
+        {/*<Box display="flex" alignItems="center" justifyContent="flex-end">
           <ToggleButton setToggle={setToggle} toggle={toggle} />
-        </Box>
+        </Box>*/}
       </Box>
       {item.title === "Books" && showOptions && <BAExtra />}
+      {item.title === "Pairwise Visualization" && (
+        <Box sx={{ display: showDownloadOptions ? "block" : "none" }}>
+          <DownloadPanel
+            isPairwiseViz={true}
+            downloadFileName={
+              isFlipped
+                ? `KITAB_explore_${releaseCode}_${metaData?.book2?.versionCode}_${metaData?.book1?.versionCode}.png`
+                : `KITAB_explore_${releaseCode}_${metaData?.book1?.versionCode}_${metaData?.book2?.versionCode}.png`
+            }
+            includeURL={includeURL}
+            setIncludeURL={setIncludeURL}
+            includeMetadata={includeMetadata}
+            setIncludeMetadata={setIncludeMetadata}
+            includeTocMarkers={includeTocMarkers}
+            setIncludeTocMarkers={setIncludeTocMarkers}
+          />
+        </Box>
+      )}
+      {item.title === "One-to-Many Visualization" && (
+        <Box sx={{ display: showDownloadOptions ? "block" : "none" }}>
+          <DownloadPanel
+            isPairwiseViz={false}
+            downloadFileName={`KITAB_explore_${releaseCode}_${metaData?.book1?.versionCode}_all.png`}
+            includeURL={includeURL}
+            setIncludeURL={setIncludeURL}
+            includeLegend={includeLegend}
+            setIncludeLegend={setIncludeLegend}
+            includeSidebar={includeSidebar}
+            setIncludeSidebar={setIncludeSidebar}
+            includeBottomBar={includeBottomBar}
+            setIncludeBottomBar={setIncludeBottomBar}
+          />
+        </Box>
+      )}
     </Box>
   );
 };
