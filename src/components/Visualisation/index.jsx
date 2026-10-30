@@ -725,6 +725,32 @@ const VisualisationPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [releaseCode, searchParams.get("books")]);
+  // Start one of the tours (also used by the links to other tours inside a tour)
+  const handleStartTour = (key) => {
+    if (key === "pairwise") {
+      if (isPairwiseViz) {
+        setPairwiseTourRunning(true);
+      } else {
+        // not on a pairwise chart: open the demo pair, which starts the tour
+        try { sessionStorage.setItem("kitab-start-pairwise-tour", String(Date.now())); } catch (e) { /* ignore */ }
+        tourAutoStarted.current = false;
+        navigate(`/visualise/${releaseCode}/?books=${DEMO_BOOKS}&tour=pairwise`);
+      }
+    } else if (key === "corpuswide") {
+      if (!isPairwiseViz && chartData?.msData?.length) {
+        setCorpuswideTourRunning(true);
+      } else {
+        // not on a corpus-wide chart: open the demo book, which starts the tour
+        try { sessionStorage.setItem("kitab-start-corpuswide-tour", String(Date.now())); } catch (e) { /* ignore */ }
+        tourAutoStarted.current = false;
+        navigate(`/visualise/${releaseCode}/?books=${CORPUSWIDE_DEMO_BOOKS}&tour=corpuswide`);
+      }
+    } else if (key === "main") {
+      try { sessionStorage.setItem(MAIN_TOUR_REQUEST, "1"); } catch (e) { /* ignore */ }
+      navigate(`/${releaseCode}/`);
+    }
+  };
+
   return (
     <Box
       mx={"auto"}
@@ -746,30 +772,7 @@ const VisualisationPage = () => {
     >
       <Header
         isPairwiseViz={isPairwiseViz}
-        onStartTour={(key) => {
-          if (key === "pairwise") {
-            if (isPairwiseViz) {
-              setPairwiseTourRunning(true);
-            } else {
-              // not on a pairwise chart: open the demo pair, which starts the tour
-              try { sessionStorage.setItem("kitab-start-pairwise-tour", String(Date.now())); } catch (e) { /* ignore */ }
-              tourAutoStarted.current = false;
-              navigate(`/visualise/${releaseCode}/?books=${DEMO_BOOKS}&tour=pairwise`);
-            }
-          } else if (key === "corpuswide") {
-            if (!isPairwiseViz && chartData?.msData?.length) {
-              setCorpuswideTourRunning(true);
-            } else {
-              // not on a corpus-wide chart: open the demo book, which starts the tour
-              try { sessionStorage.setItem("kitab-start-corpuswide-tour", String(Date.now())); } catch (e) { /* ignore */ }
-              tourAutoStarted.current = false;
-              navigate(`/visualise/${releaseCode}/?books=${CORPUSWIDE_DEMO_BOOKS}&tour=corpuswide`);
-            }
-          } else if (key === "main") {
-            try { sessionStorage.setItem(MAIN_TOUR_REQUEST, "1"); } catch (e) { /* ignore */ }
-            navigate(`/${releaseCode}/`);
-          }
-        }}
+        onStartTour={handleStartTour}
       />
       <PairwiseVisualizationTour
         run={pairwiseTourRunning}
@@ -781,6 +784,7 @@ const VisualisationPage = () => {
       />
       <CorpuswideVisualizationTour
         run={corpuswideTourRunning}
+        onSwitchTour={handleStartTour}
         onExit={() => {
           setCorpuswideTourRunning(false);
           // the tour selects a dot (ms1, id2) and opens its DiffViewer (align_no)

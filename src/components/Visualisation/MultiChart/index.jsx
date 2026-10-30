@@ -401,10 +401,18 @@ const MultiVisual = ({ includeURL, setIncludeURL, ...props }) => {
       const el = multiVisRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      setTocPanelBounds({ top: rect.top, height: rect.height });
+      // (keep the old state when nothing changed: a new object on every call would
+      // re-render the page, which can resize the observed element again)
+      setTocPanelBounds((prev) =>
+        prev.top === rect.top && prev.height === rect.height
+          ? prev
+          : { top: rect.top, height: rect.height }
+      );
     };
     update();
-    const observer = new ResizeObserver(update);
+    // (updating in an animation frame avoids the browser's harmless but noisy
+    // "ResizeObserver loop completed with undelivered notifications" error)
+    const observer = new ResizeObserver(() => requestAnimationFrame(update));
     if (multiVisRef.current) observer.observe(multiVisRef.current);
     window.addEventListener("scroll", update);
     return () => { observer.disconnect(); window.removeEventListener("scroll", update); };

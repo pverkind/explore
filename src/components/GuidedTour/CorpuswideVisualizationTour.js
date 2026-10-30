@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
 import { hideTour, showTour } from "./tourHide";
+import { DEMO_BOOKS as PAIRWISE_DEMO_BOOKS } from "./PairwiseVisualizationTour";
+import { installTourLinks } from "./tourLinks";
 import { hideCursor, moveCursorTo, pulseCursor, resetCursor } from "./fakeCursor";
 
 const TOUR_KEY = "kitab-corpuswide-tour-seen";
@@ -129,7 +131,7 @@ const steps = [
     element: "#bottom-bar",
     title: BAR_STEP_TITLE,
     intro:
-      "<b>Clicking</b> a bar selects the text: its column of dots is outlined in the scatter plot. Use the <b>left/right</b> arrow keys to move to the previous/next text (watch the selection move) and <b>Escape</b> to deselect. <br><b>Double-click</b> a bar (or press <b>Enter</b>) to open the pairwise visualisation of the two texts in a new tab.",
+      "<b>Clicking</b> a bar selects the text: its column of dots is outlined in the scatter plot. Use the <b>left/right</b> arrow keys to move to the previous/next text (watch the selection move) and <b>Escape</b> to deselect. <br><b>Double-click</b> a bar (or press <b>Enter</b>) to open the pairwise visualisation of the two texts in a new tab. <br>Curious how that visualisation works? <a href=\"#\" target=\"_blank\" data-tour-link=\"pairwise\" style=\"color:#2862a5; text-decoration:underline;\">Take the Pairwise Visualization Tour</a>.",
     position: "top",
   },
   {
@@ -456,7 +458,7 @@ const raiseTooltip = (raised) => {
   if (tooltip) tooltip.style.zIndex = raised ? "99999999" : "";
 };
 
-const CorpuswideVisualizationTour = ({ run, onExit }) => {
+const CorpuswideVisualizationTour = ({ run, onExit, onSwitchTour }) => {
   const introRef = useRef(null);
 
   useEffect(() => {
@@ -697,7 +699,15 @@ const CorpuswideVisualizationTour = ({ run, onExit }) => {
 
     launch(0);
 
+    // links to other tours in the step texts (see tourLinks.js)
+    const removeTourLinks = installTourLinks({
+      demoBooks: { pairwise: PAIRWISE_DEMO_BOOKS },
+      endTour: () => introRef.current?.exit(true),
+      onSwitch: onSwitchTour,
+    });
+
     return () => {
+      removeTourLinks();
       introRef.current?.exit(true);
       showTour();
       removePlotArea();
