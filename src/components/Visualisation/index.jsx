@@ -158,11 +158,42 @@ const VisualisationPage = () => {
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // Remove the ?tour=... parameter (used to start a tour automatically) from the URL
+  // once a tour has ended. The tours call this from a closure that may be older than the
+  // current parameters (e.g. ms1/id2, added by the chart), so the current URL is read
+  // from the window instead of from searchParams.
+  // `alsoRemove`: other parameters to remove (those that the tour itself has added).
+  const removeTourParam = (alsoRemove = []) => {
+    const hash = window.location.hash; // e.g. "#/visualise/2025.1.9/?books=...&tour=pairwise"
+    // (a tour is also exited when the user leaves this page: do not navigate back then)
+    if (!hash.startsWith("#/visualise")) return;
+    const queryStart = hash.indexOf("?");
+    if (queryStart < 0) return;
+    const params = new URLSearchParams(hash.slice(queryStart + 1));
+    const toRemove = ["tour", ...alsoRemove].filter((name) => params.has(name));
+    if (!toRemove.length) return;
+    toRemove.forEach((name) => params.delete(name));
+    navigate(`${hash.slice(1, queryStart)}?${params.toString()}`, { replace: true });
+  };
   const { version } = useParams();
 
   const [pairwiseTourRunning, setPairwiseTourRunning] = useState(false);
   const [corpuswideTourRunning, setCorpuswideTourRunning] = useState(false);
   const tourAutoStarted = useRef(false);
+  const anyTourRunningRef = useRef(false);
+  anyTourRunningRef.current = pairwiseTourRunning || corpuswideTourRunning;
+
+  // When another visualisation is loaded (e.g. with the back button), a tour that is
+  // still running belongs to the old chart: end it.
+  const booksParam = searchParams.get("books");
+  const previousBooksParam = useRef(booksParam);
+  useEffect(() => {
+    if (previousBooksParam.current === booksParam) return;
+    previousBooksParam.current = booksParam;
+    setPairwiseTourRunning(false);
+    setCorpuswideTourRunning(false);
+  }, [booksParam]);
 
   // Start the pairwise tour automatically when arriving from the "Take a tour" dropdown
   // on the landing page, once the chart has been drawn. The request is passed as a
@@ -174,7 +205,10 @@ const VisualisationPage = () => {
     const requested = (name) => {
       let found = searchParams.get("tour") === name;
       try {
-        found = found || sessionStorage.getItem(`kitab-start-${name}-tour`) === "1";
+        // (the flag is a time stamp: an old one, e.g. from a navigation that never
+        // reached this page, must not start a tour later)
+        const flagTime = Number(sessionStorage.getItem(`kitab-start-${name}-tour`));
+        found = found || (flagTime > 0 && Date.now() - flagTime < 2 * 60 * 1000);
       } catch (e) { /* sessionStorage unavailable */ }
       return found;
     };
@@ -197,8 +231,13 @@ const VisualisationPage = () => {
       if (!drawn && waited < 20000) return;
       clearInterval(timer);
       setTimeout(() => {
+        // never start a tour while another one is running (e.g. after the back button)
+        if (tourAutoStarted.current || anyTourRunningRef.current) return;
         tourAutoStarted.current = true;
         try { sessionStorage.removeItem(`kitab-start-${which}-tour`); } catch (e) { /* ignore */ }
+        // the request is consumed: remove it from the URL, so that going back or forward
+        // to this URL does not start the tour again
+        removeTourParam();
         if (which === "pairwise") setPairwiseTourRunning(true);
         else setCorpuswideTourRunning(true);
       }, 800);
@@ -710,7 +749,7 @@ const VisualisationPage = () => {
               setPairwiseTourRunning(true);
             } else {
               // not on a pairwise chart: open the demo pair, which starts the tour
-              try { sessionStorage.setItem("kitab-start-pairwise-tour", "1"); } catch (e) { /* ignore */ }
+              try { sessionStorage.setItem("kitab-start-pairwise-tour", String(Date.now())); } catch (e) { /* ignore */ }
               tourAutoStarted.current = false;
               navigate(`/visualise/${releaseCode}/?books=${DEMO_BOOKS}&tour=pairwise`);
             }
@@ -719,7 +758,7 @@ const VisualisationPage = () => {
               setCorpuswideTourRunning(true);
             } else {
               // not on a corpus-wide chart: open the demo book, which starts the tour
-              try { sessionStorage.setItem("kitab-start-corpuswide-tour", "1"); } catch (e) { /* ignore */ }
+              try { sessionStorage.setItem("kitab-start-corpuswide-tour", String(Date.now())); } catch (e) { /* ignore */ }
               tourAutoStarted.current = false;
               navigate(`/visualise/${releaseCode}/?books=${CORPUSWIDE_DEMO_BOOKS}&tour=corpuswide`);
             }
@@ -732,11 +771,18 @@ const VisualisationPage = () => {
       <PairwiseVisualizationTour
         run={pairwiseTourRunning}
         setIsOpenDrawer={setIsOpenDrawer}
-        onExit={() => setPairwiseTourRunning(false)}
+        onExit={() => {
+          setPairwiseTourRunning(false);
+          removeTourParam();
+        }}
       />
       <CorpuswideVisualizationTour
         run={corpuswideTourRunning}
-        onExit={() => setCorpuswideTourRunning(false)}
+        onExit={() => {
+          setCorpuswideTourRunning(false);
+          // the tour selects a dot (ms1, id2) and opens its DiffViewer (align_no)
+          removeTourParam(["ms1", "id2", "align_no"]);
+        }}
       />
       {isError ? (
         <Box

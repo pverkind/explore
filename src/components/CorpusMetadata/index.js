@@ -349,10 +349,10 @@ const MetadataTable = ({ isHome }) => {
           onStartTour={(key) => {
             if (key === "main") setTourRunning(true);
             else if (key === "corpuswide") {
-              try { sessionStorage.setItem("kitab-start-corpuswide-tour", "1"); } catch (e) { /* ignore */ }
+              try { sessionStorage.setItem("kitab-start-corpuswide-tour", String(Date.now())); } catch (e) { /* ignore */ }
               navigate(`/visualise/${releaseCode}/?books=${CORPUSWIDE_DEMO_BOOKS}&tour=corpuswide`);
             } else if (key === "pairwise") {
-              try { sessionStorage.setItem("kitab-start-pairwise-tour", "1"); } catch (e) { /* ignore */ }
+              try { sessionStorage.setItem("kitab-start-pairwise-tour", String(Date.now())); } catch (e) { /* ignore */ }
               navigate(`/visualise/${releaseCode}/?books=${DEMO_BOOKS}&tour=pairwise`);
             }
           }}

@@ -175,6 +175,12 @@ const deselectBar = () => {
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 };
 
+// A promise that never settles. A step change that is abandoned because its tour has been
+// replaced (and exited) must not return `false`: intro.js then steps the exited tour back
+// to step 0, which draws its welcome popup again, next to the new tour's popup. Leaving
+// the change pending is harmless.
+const NEVER = new Promise(() => {});
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // resolve once condition() returns something truthy (or after timeout ms)
@@ -408,7 +414,7 @@ const PairwiseVisualizationTour = ({ run, onExit, setIsOpenDrawer }) => {
           // its element is resolved again.
           diffReady = true;
           await restartAt(currentStep);
-          return false; // abandon the change in the tour that was just exited
+          return NEVER; // abandon the change in the tour that was just exited
         })();
       }
 
@@ -422,7 +428,7 @@ const PairwiseVisualizationTour = ({ run, onExit, setIsOpenDrawer }) => {
         return (async () => {
           await wait(600);
           await restartAt(currentStep);
-          return false;
+          return NEVER;
         })();
       }
     });
