@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
-import FilterClose from "@mui/icons-material/FilterListOff";
 import FilterOpen from "@mui/icons-material/FilterList";
 
 import AdvanceSearch from "./AdvanceSearch";
@@ -151,7 +150,7 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
   }, [updateText]);
 
   return (
-    <Box display={"flex"} justifyContent={"space-between"} gap={2} my={2}>
+    <Box id="search-filter" display={"flex"} justifyContent={"space-between"} gap={2} my={2}>
       <Grid container item md={12} xs={12}>
         <AdvanceSearch />
         <SetSearchField />
@@ -172,20 +171,24 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
             right: "0px",
           }}
         >
-          <>
-            <Tooltip title="Toggle Filter Sidebar">
-              <IconButton
-                onClick={handleFilterPanel}
-                sx={{
-                  display: "flex",
-                }}
-              >
-                {showFilters ? <FilterClose /> : <FilterOpen />}
-              </IconButton>
-            </Tooltip>
-          </>
+          <Tooltip title="Show Filter Sidebar">
+            <IconButton
+              id="filter-sidebar-toggle"
+              onClick={handleFilterPanel}
+              sx={{
+                display: "flex",
+                visibility: showFilters ? "hidden" : "visible",
+                pointerEvents: showFilters ? "none" : "auto",
+              }}
+            >
+              <FilterOpen />
+            </IconButton>
+          </Tooltip>
 
-          {searchParams.size ? (
+          {!showFilters && (searchParams.size > 3 ||
+            (searchParams.get("version") && searchParams.get("version") !== "pri") ||
+            (searchParams.get("text_type") && searchParams.get("text_type") !== "all") ||
+            (searchParams.get("language") && searchParams.get("language") !== "all")) ? (
             <Tooltip title="Clear Filters">
               <IconButton onClick={handleResetFilters}>
                 <FilterAltOffIcon />
@@ -202,11 +205,12 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
                 <TextField
                   id="outlined-search"
                   label={
-                    searchField
-                      ? searchField === "author"
-                        ? "Search by author"
-                        : "Search by title"
-                      : "Search by author, title or attributes"
+                    {
+                      author: "Search by author",
+                      title: "Search by title",
+                      shelfmark: "Search by shelfmark",
+                      holding: "Search by manuscript holding",
+                    }[searchField] ?? "Search by author, title or other attributes"
                   }
                   type="search"
                   size="small"
@@ -218,6 +222,7 @@ const SearchFilters = ({ handleResetFilters, getQuery }) => {
              
               {(searchParams.get("search") || text || searchField) && (
                 <Typography
+                  id="search-clear-btn"
                   sx={{
                     cursor: "pointer",
                     position: "absolute",
